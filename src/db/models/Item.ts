@@ -56,8 +56,18 @@ const Item = (sequelize: any, DataTypes: any) => {
       details: {
         type: DataTypes.JSONB,
       },
-      borrowedAt: {
-        field: 'borrowed_at',
+      borrowerId: {
+        field: 'borrower_id',
+        type: DataTypes.BIGINT,
+        references: { model: 'book_borrower', key: 'id' },
+      },
+      status: {
+        type: DataTypes.ENUM(['AVAILABLE', 'LENT', 'UNAVAILABLE']),
+        allowNull: false,
+        defaultValue: 'AVAILABLE'
+      },
+      lentAt: {
+        field: 'lent_at',
         type: DataTypes.DATE,
       },
       createdAt: {
@@ -103,6 +113,14 @@ const Item = (sequelize: any, DataTypes: any) => {
         {
           unique: false,
           fields: ['library_number'],
+        },
+        {
+          unique: false,
+          fields: ['status'],
+        },
+        {
+          unique: false,
+          fields: ['borrower_id'],
         },
       ],
     },

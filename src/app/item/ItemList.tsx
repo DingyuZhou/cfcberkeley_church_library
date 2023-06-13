@@ -70,7 +70,7 @@ export default function ItemList({
     })
   }
 
-  const handLinkUuidAndItem = async () => {
+  const handleLinkUuidAndItem = async () => {
     const itemId = alertProps?.item?.itemId
     closeAlertDialog()
     if (itemId && uuidToLink) {
@@ -219,7 +219,7 @@ export default function ItemList({
       <AlertDialog
         isOpen={alertProps?.isOpen}
         title={alertProps?.title}
-        onYes={handLinkUuidAndItem}
+        onYes={handleLinkUuidAndItem}
         onNo={closeAlertDialog}
       >
         <Grid container spacing={2}>

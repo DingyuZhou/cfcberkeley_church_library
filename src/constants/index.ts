@@ -9,3 +9,6 @@ export const ITEM_TYPE_ID = {
 }
 
 export const UNCATEGORIZED_CATEGORY_ID = '-1'
+
+export const UNEXPECTED_INTERNAL_ERROR =  'Unexpected internal error. Please try it again later'
+

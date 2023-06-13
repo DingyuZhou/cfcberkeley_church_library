@@ -1,5 +1,10 @@
 import { IItem, IItemCategoryMap } from 'src/types'
 
+export const itemStatusMap: { [status: string]: string } = {
+  'AVAILABLE': 'Available',
+  'LENT': 'Borrowed',
+}
+
 export default function formatItemDataFromDb(rawItemData: any, itemCategoryMap: IItemCategoryMap) {
   if (rawItemData) {
     const itemCategoryId = rawItemData.itemCategoryId || rawItemData['item_category_id'] || ''
@@ -19,6 +24,7 @@ export default function formatItemDataFromDb(rawItemData: any, itemCategoryMap: 
       releasedAt: rawItemData.releasedAt || rawItemData['released_at'] || '',
       note: rawItemData.note || '',
       details: rawItemData.details,
+      status: itemStatusMap[rawItemData.status] || 'Not Available',
     }
 
     return formattedItemData

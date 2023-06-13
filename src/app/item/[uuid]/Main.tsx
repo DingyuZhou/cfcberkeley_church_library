@@ -10,6 +10,7 @@ import { IItem, IItemCategory, IItemCategoryMap } from 'src/types'
 import ItemEdit from '../ItemEdit'
 import ItemDetails from './ItemDetails'
 import ItemSearch from './ItemSearch'
+import BookReturn from './BookReturn'
 
 interface IProps {
   uuid: string
@@ -69,6 +70,16 @@ export default function Main({ uuid, itemCategories, itemCategoryMap, hasAdminPr
                   </Button>
                 </ItemEdit>
               </Grid>
+
+              {
+                hasBook ? (
+                  <Grid item xs={12} style={{ paddingTop: '30px' }}>
+                    <BookReturn item={item}>
+                      <Button variant="contained" color="primary">Mark the book as returned</Button>
+                    </BookReturn>
+                  </Grid>
+                ) : null
+              }
 
               {
                 !hasBook ? (

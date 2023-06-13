@@ -13,6 +13,7 @@ export interface IItem {
   releasedAt?: string
   note?: string
   details?: any
+  status?: string
 }
 
 export interface IItemCategory {

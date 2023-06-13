@@ -8,6 +8,8 @@ import {
 
 import { IItem } from 'src/types'
 
+import BookBorrow from './BookBorrow'
+
 interface IProps {
   hasAdminPrivilege: boolean
   item?: IItem
@@ -46,8 +48,13 @@ export default function ItemDetails({ hasAdminPrivilege, item }: IProps) {
         <Grid item xs={12} sm={6}>
           <Typography variant="body1"><strong>UUID:</strong> {item.uuid}</Typography>
         </Grid>
-        <Grid item xs={12}>
-          <Button variant="contained" color="primary">Borrow the book</Button>
+        <Grid item xs={12} sm={6}>
+          <Typography variant="body1"><strong>Status:</strong> {item.status}</Typography>
+        </Grid>
+        <Grid item xs={12} style={{ paddingTop: '30px' }}>
+          <BookBorrow item={item}>
+            <Button variant="contained" color="primary">Borrow the book</Button>
+          </BookBorrow>
         </Grid>
       </Grid>
     )

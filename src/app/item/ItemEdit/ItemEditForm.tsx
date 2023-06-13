@@ -5,7 +5,7 @@ import axios from "axios"
 import { Grid, TextField, Button, Autocomplete } from '@mui/material'
 
 import { WEB_URL, ITEM_TYPE_ID } from 'src/constants'
-import { IItem, IItemCategory, IItemCategoryMap } from "src/types"
+import { IItem, IItemCategory, IItemCategoryMap } from 'src/types'
 import formatItemDataFromDb from '../formatItemDataFromDb'
 
 interface IProps {

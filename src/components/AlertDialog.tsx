@@ -10,9 +10,11 @@ export interface IAlertProps {
   onYes: () => void
   onNo: () => void
   children: any
+  isLoading?: boolean
+  errorMessage?: string
 }
 
-export default function AlertDialog({ isOpen, title, children, onYes, onNo }: IAlertProps) {
+export default function AlertDialog({ isOpen, title, children, onYes, onNo, isLoading, errorMessage }: IAlertProps) {
   return (
     <Dialog
       open={isOpen}
@@ -21,7 +23,16 @@ export default function AlertDialog({ isOpen, title, children, onYes, onNo }: IA
       <DialogTitle>
         {title}
       </DialogTitle>
-      <DialogContent>{children}</DialogContent>
+      <DialogContent>
+        {children}
+        {
+          errorMessage ? (
+            <div style={{ padding: '30px 0 10px 0', color: 'red', textAlign: 'center' }}>
+              {errorMessage}
+            </div>
+          ) : null
+        }
+      </DialogContent>
       <DialogActions style={{ paddingBottom: '20px', paddingRight: '25px' }}>
         <Button
           onClick={onNo}
@@ -31,6 +42,7 @@ export default function AlertDialog({ isOpen, title, children, onYes, onNo }: IA
             width: '100px',
             marginRight: '10px',
           }}
+          disabled={isLoading === true}
         >
           No
         </Button>
@@ -40,6 +52,7 @@ export default function AlertDialog({ isOpen, title, children, onYes, onNo }: IA
           variant="contained"
           color="primary"
           style={{ width: '100px' }}
+          disabled={isLoading === true}
         >
           Yes
         </Button>
