@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 
 import isAdmin from 'src/util/member/isAdmin'
+import ItemSearch from 'src/app/item/Search'
 
 export default async function Home() {
   const appCookies = cookies()
@@ -12,6 +13,10 @@ export default async function Home() {
       <h1>CFC Berkeley Library</h1>
       <div>Welcome!</div>
       <div><Link href="/member/sign-in">Sign In</Link></div>
+
+      <div style={{ padding: '30px 20px' }}>
+        <ItemSearch />
+      </div>
 
       {
         hasAdminPrivilege ? (

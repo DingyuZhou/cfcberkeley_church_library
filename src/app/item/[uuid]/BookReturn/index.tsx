@@ -17,6 +17,7 @@ export default function BookReturn({ item, children }: IProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const handleClickOpen = () => {
     setIsLoading(false)
@@ -25,6 +26,9 @@ export default function BookReturn({ item, children }: IProps) {
   }
 
   const handleClose = () => {
+    if (isSuccess) {
+      window.location.reload()
+    }
     setIsOpen(false)
   }
 
@@ -38,7 +42,7 @@ export default function BookReturn({ item, children }: IProps) {
       })
 
       if (response?.data?.isSuccess) {
-        handleClose()
+        setIsSuccess(true)
       } else {
         setErrorMessage(response?.data?.errorMessage || UNEXPECTED_INTERNAL_ERROR)
         setIsLoading(false)
@@ -60,14 +64,20 @@ export default function BookReturn({ item, children }: IProps) {
         isLoading={isLoading}
         errorMessage={errorMessage}
       >
-        <Grid container spacing={2}>
-          <Grid item xs={4} style={{ textAlign: 'right', fontWeight: 700 }}>书名</Grid>
-          <Grid item xs={8}>{item?.title}</Grid>
-          <Grid item xs={4} style={{ textAlign: 'right', fontWeight: 700 }}>作者</Grid>
-          <Grid item xs={8}>{item?.author}</Grid>
-          <Grid item xs={4} style={{ textAlign: 'right', fontWeight: 700 }}>出版商</Grid>
-          <Grid item xs={8}>{item?.publisher}</Grid>
-        </Grid>
+        {
+          isSuccess ? (
+            <div>The book, {item?.title}, has been successfully returned!</div>
+          ) : (
+            <Grid container spacing={2}>
+              <Grid item xs={4} style={{ textAlign: 'right', fontWeight: 700 }}>书名</Grid>
+              <Grid item xs={8}>{item?.title}</Grid>
+              <Grid item xs={4} style={{ textAlign: 'right', fontWeight: 700 }}>作者</Grid>
+              <Grid item xs={8}>{item?.author}</Grid>
+              <Grid item xs={4} style={{ textAlign: 'right', fontWeight: 700 }}>出版商</Grid>
+              <Grid item xs={8}>{item?.publisher}</Grid>
+            </Grid>
+          )
+        }
       </AlertDialog>
     </div>
   )

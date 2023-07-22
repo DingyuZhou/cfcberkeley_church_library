@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 import { Grid, TextField, Button } from '@mui/material'
 import { useRouter } from 'next/navigation'
@@ -11,11 +11,8 @@ function SignInForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const router = useRouter()
-
-  useEffect(() => {
-    console.log("I am only being executed in the browser");
-  }, []);
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value)
@@ -39,13 +36,15 @@ function SignInForm() {
           password,
         }
       })
-    } catch (error) {
+      router.replace('/')
+      router.refresh()
+    } catch (error: any) {
       console.log(error)
+      setErrorMessage(
+        error?.response?.data?.error?.message || 'The email or password may not be correct'
+      )
+      setIsSubmitting(false)
     }
-
-    setIsSubmitting(false)
-
-    router.push('/')
   }
 
   return (
@@ -56,7 +55,7 @@ function SignInForm() {
       alignItems="center"
       style={{ height: '100vh' }}
     >
-      <Grid item xs={12} sm={8} md={6} lg={4} style={{ maxWidth: '400px' }}>
+      <Grid item xs={12} sm={8} md={6} lg={4} style={{ maxWidth: '400px', paddingBottom: '20vh' }}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -84,7 +83,7 @@ function SignInForm() {
                 onChange={handlePasswordChange}
               />
             </Grid>
-            <Grid item xs={12} style={{ paddingTop: '40px', paddingBottom: '20vh' }}>
+            <Grid item xs={12} style={{ paddingTop: '40px' }}>
               <Button
                 type="submit"
                 variant="contained"
@@ -95,6 +94,11 @@ function SignInForm() {
                 Sign In
               </Button>
             </Grid>
+            {
+              errorMessage ? (
+                <Grid item xs={12} style={{ paddingTop: '20px', color: 'red', textAlign: 'center' }}>{errorMessage}</Grid>
+              ) : null
+            }
           </Grid>
         </form>
       </Grid>

@@ -12,3 +12,6 @@ export const UNCATEGORIZED_CATEGORY_ID = '-1'
 
 export const UNEXPECTED_INTERNAL_ERROR =  'Unexpected internal error. Please try it again later'
 
+export const BOOK_STATUS_AVAILABLE = 'AVAILABLE'
+export const BOOK_STATUS_LENT = 'LENT'
+export const BOOK_STATUS_UNAVAILABLE = 'UNAVAILABLE'

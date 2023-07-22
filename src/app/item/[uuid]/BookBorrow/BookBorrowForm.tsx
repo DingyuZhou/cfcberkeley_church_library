@@ -88,7 +88,14 @@ function BookBorrowForm({ itemId, onBookBorrowed }: IProps) {
   }
 
   const handleSubmit = async (event: any) => {
-    event.preventDefault()
+    if (event) {
+      if (event.preventDefault) {
+        event.preventDefault()
+      }
+      if (event.stopPropagation) {
+        event.stopPropagation()
+      }
+    }
 
     const validatedInput = validateInput(hasSentCheckoutPasscode)
     if (!validatedInput) {

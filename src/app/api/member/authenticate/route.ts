@@ -42,5 +42,5 @@ export async function POST(req: NextRequest) {
     console.error(err)
   }
 
-  return jsonResponse(500, { error: { message: 'Authentication failed.' } })
+  return jsonResponse(500, { error: { message: 'The email or password may not be correct' } })
 }

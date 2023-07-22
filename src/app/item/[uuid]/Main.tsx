@@ -9,7 +9,7 @@ import { IItem, IItemCategory, IItemCategoryMap } from 'src/types'
 
 import ItemEdit from '../ItemEdit'
 import ItemDetails from './ItemDetails'
-import ItemSearch from './ItemSearch'
+import AdminBookSearch from './AdminBookSearch'
 import BookReturn from './BookReturn'
 
 interface IProps {
@@ -46,7 +46,7 @@ export default function Main({ uuid, itemCategories, itemCategoryMap, hasAdminPr
   return (
     <Grid container rowSpacing={5} style={{ paddingTop: '50px' }}>
       <Grid item xs={12}>
-        <ItemDetails item={displayedItem} hasAdminPrivilege={hasAdminPrivilege} />
+        <ItemDetails item={displayedItem} hasAdminPrivilege={hasAdminPrivilege} hasBorrowButton={true} />
       </Grid>
 
       {
@@ -72,7 +72,7 @@ export default function Main({ uuid, itemCategories, itemCategoryMap, hasAdminPr
               </Grid>
 
               {
-                hasBook ? (
+                (hasBook && !item?.isAvailable) ? (
                   <Grid item xs={12} style={{ paddingTop: '30px' }}>
                     <BookReturn item={item}>
                       <Button variant="contained" color="primary">Mark the book as returned</Button>
@@ -84,7 +84,7 @@ export default function Main({ uuid, itemCategories, itemCategoryMap, hasAdminPr
               {
                 !hasBook ? (
                   <Grid item xs={12}>
-                    <ItemSearch
+                    <AdminBookSearch
                       itemUuid={uuid}
                       itemCategories={itemCategories}
                       itemCategoryMap={itemCategoryMap}

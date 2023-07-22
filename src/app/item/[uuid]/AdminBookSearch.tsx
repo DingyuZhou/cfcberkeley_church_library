@@ -17,7 +17,7 @@ interface IProps {
   onItemLinked: (linkedItem: IItem) => void
 }
 
-function ItemSearch({ itemUuid, itemCategories, itemCategoryMap, onItemLinked }: IProps) {
+function AdminBookSearch({ itemUuid, itemCategories, itemCategoryMap, onItemLinked }: IProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [searchedItems, setSearchedItems] = useState([])
@@ -30,7 +30,7 @@ function ItemSearch({ itemUuid, itemCategories, itemCategoryMap, onItemLinked }:
     setIsSubmitting(true)
 
     try {
-      const searchResponse = await axios.post(`${WEB_URL}/api/item/search`, { searchText })
+      const searchResponse = await axios.post(`${WEB_URL}/api/item/admin-book-search`, { searchText })
       setSearchedItems((searchResponse.data || []).map((rawItemData: any) => {
         return formatItemDataFromDb(rawItemData, itemCategoryMap)
       }))
@@ -100,4 +100,4 @@ function ItemSearch({ itemUuid, itemCategories, itemCategoryMap, onItemLinked }:
   )
 }
 
-export default ItemSearch
+export default AdminBookSearch

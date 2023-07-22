@@ -1,5 +1,6 @@
 export interface IItem {
   uuid: string
+  itemType?: string
   itemTypeId: string
   itemCategoryId: string
   itemId?: string
@@ -14,6 +15,7 @@ export interface IItem {
   note?: string
   details?: any
   status?: string
+  isAvailable?: boolean
 }
 
 export interface IItemCategory {
