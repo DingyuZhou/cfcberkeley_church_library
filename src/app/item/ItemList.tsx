@@ -174,6 +174,14 @@ export default function ItemList({
       minWidth: 200,
       flex: 2,
     },
+    {
+      field: 'status',
+      headerName: 'Status',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+    },
   ]
 
   if (uuidToLink) {

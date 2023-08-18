@@ -1,9 +1,11 @@
 import { IItem, IItemCategoryMap } from 'src/types'
-import { BOOK_STATUS_AVAILABLE, BOOK_STATUS_LENT } from 'src/constants'
+import { BOOK_STATUS_AVAILABLE, BOOK_STATUS_LENT, BOOK_STATUS_DELETED, BOOK_STATUS_MISSING } from 'src/constants'
 
 export const itemStatusMap: { [status: string]: string } = {
   [BOOK_STATUS_AVAILABLE]: 'Available',
   [BOOK_STATUS_LENT]: 'Borrowed',
+  [BOOK_STATUS_DELETED]: 'Deleted',
+  [BOOK_STATUS_MISSING]: 'Missing',
 }
 
 export default function formatItemDataFromDb(rawItemData: any, itemCategoryMap?: IItemCategoryMap) {
@@ -26,7 +28,7 @@ export default function formatItemDataFromDb(rawItemData: any, itemCategoryMap?:
       releasedAt: rawItemData.releasedAt || rawItemData['released_at'] || '',
       note: rawItemData.note || '',
       details: rawItemData.details,
-      status: itemStatusMap[rawItemData.status] || 'Not Available',
+      status: rawItemData.status || BOOK_STATUS_AVAILABLE,
       isAvailable: (rawItemData.status === BOOK_STATUS_AVAILABLE),
     }
 

@@ -62,7 +62,7 @@ const Item = (sequelize: any, DataTypes: any) => {
         references: { model: 'book_borrower', key: 'id' },
       },
       status: {
-        type: DataTypes.ENUM(['AVAILABLE', 'LENT', 'UNAVAILABLE']),
+        type: DataTypes.ENUM(['AVAILABLE', 'LENT', 'DELETED', 'MISSING']),
         allowNull: false,
         defaultValue: 'AVAILABLE'
       },

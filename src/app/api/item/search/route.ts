@@ -20,8 +20,9 @@ export async function POST(request: NextRequest) {
           FROM item AS i
           JOIN item_type AS it ON i.item_type_id = it.id
           JOIN item_category AS ic ON i.item_category_id = ic.id
-          WHERE i.status != 'UNAVAILABLE'
+          WHERE i.status IN ('AVAILABLE', 'LENT')
             AND (it.name = :itemType OR :itemType = 'All')
+            AND i.uuid NOT LIKE 'temp-%'
             AND (
               (i.title || ' ' || i.author || ' ' || i.publisher ) % :searchText
               OR GREATEST(LENGTH((i.title || ' ' || i.author || ' ' || i.publisher )), LENGTH(:searchText)) - levenshtein((i.title || ' ' || i.author || ' ' || i.publisher ), :searchText) > 0

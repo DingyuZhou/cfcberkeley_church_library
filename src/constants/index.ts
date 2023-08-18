@@ -14,4 +14,5 @@ export const UNEXPECTED_INTERNAL_ERROR =  'Unexpected internal error. Please try
 
 export const BOOK_STATUS_AVAILABLE = 'AVAILABLE'
 export const BOOK_STATUS_LENT = 'LENT'
-export const BOOK_STATUS_UNAVAILABLE = 'UNAVAILABLE'
+export const BOOK_STATUS_DELETED = 'DELETED'
+export const BOOK_STATUS_MISSING = 'MISSING'

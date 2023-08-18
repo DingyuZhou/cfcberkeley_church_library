@@ -12,7 +12,7 @@
     "start": "next start -p 8080",
     "lint": "next lint",
     "build-and-zip": "bash build-and-zip.sh",
-    "ingest-book-info": "NODE_PATH=. ts-node -r dotenv/config -- src/scripts/ingestBookInfo.ts"
+    "run-script": "NODE_PATH=. ts-node -r dotenv/config -- src/scripts/2023_08_17_updateBookInfo/verifyUuid.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.11.0",
@@ -43,9 +43,7 @@
     "react-to-print": "^2.14.12",
     "sequelize": "^6.30.0",
     "typescript": "5.0.2",
-    "uuid": "^9.0.0"
-  },
-  "devDependencies": {
+    "uuid": "^9.0.0",
     "papaparse": "^5.4.1",
     "sequelize-cli": "^6.6.0",
     "ts-node": "^10.9.1"

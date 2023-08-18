@@ -5,8 +5,8 @@ import chineseConverter from 'src/util/chineseConverter'
 import isAdmin from 'src/util/member/isAdmin'
 
 const itemUpdateSql = `
-  INSERT INTO item (id, uuid, item_type_id, item_category_id, title, author, translator, publisher, library_number, note)
-  VALUES (:id, :uuid, :itemTypeId, :itemCategoryId, :title, :author, :translator, :publisher, :libraryNumber, :note)
+  INSERT INTO item (id, uuid, item_type_id, item_category_id, title, author, translator, publisher, library_number, note, status)
+  VALUES (:id, :uuid, :itemTypeId, :itemCategoryId, :title, :author, :translator, :publisher, :libraryNumber, :note, :status)
   ON CONFLICT (id) DO UPDATE
   SET uuid = EXCLUDED.uuid,
     item_type_id = EXCLUDED.item_type_id,
@@ -16,13 +16,14 @@ const itemUpdateSql = `
     translator = EXCLUDED.translator,
     publisher = EXCLUDED.publisher,
     library_number = EXCLUDED.library_number,
-    note = EXCLUDED.note
+    note = EXCLUDED.note,
+    status = EXCLUDED.status
   RETURNING *;
 `
 
 const itemCreateSql = `
-  INSERT INTO item (uuid, item_type_id, item_category_id, title, author, translator, publisher, library_number, note)
-  VALUES (:uuid, :itemTypeId, :itemCategoryId, :title, :author, :translator, :publisher, :libraryNumber, :note)
+  INSERT INTO item (uuid, item_type_id, item_category_id, title, author, translator, publisher, library_number, note, status)
+  VALUES (:uuid, :itemTypeId, :itemCategoryId, :title, :author, :translator, :publisher, :libraryNumber, :note, :status)
   RETURNING *;
 `
 
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
           publisher: chineseConverter(item?.publisher || '').trim(),
           libraryNumber: chineseConverter(item?.libraryNumber || '').trim(),
           note: chineseConverter(item?.note || '').trim(),
+          status: item?.status,
         },
         type: db.QueryTypes.SELECT,
       },

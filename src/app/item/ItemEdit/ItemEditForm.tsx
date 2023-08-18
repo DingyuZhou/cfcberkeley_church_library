@@ -2,9 +2,16 @@
 
 import React, { ChangeEvent, FormEvent, useState } from "react"
 import axios from "axios"
-import { Grid, TextField, Button, Autocomplete } from '@mui/material'
+import { Grid, TextField, Button, Autocomplete, MenuItem } from '@mui/material'
 
-import { WEB_URL, ITEM_TYPE_ID } from 'src/constants'
+import {
+  WEB_URL,
+  ITEM_TYPE_ID,
+  BOOK_STATUS_AVAILABLE,
+  BOOK_STATUS_LENT,
+  BOOK_STATUS_DELETED,
+  BOOK_STATUS_MISSING,
+} from 'src/constants'
 import { IItem, IItemCategory, IItemCategoryMap } from 'src/types'
 import formatItemDataFromDb from '../formatItemDataFromDb'
 
@@ -20,10 +27,11 @@ const ItemEditForm = ({ item, itemCategories, itemCategoryMap, onSave }: IProps)
 
   const [editedItem, setEditedItem] = useState<IItem>(item)
   const [categorySelectValue, setCategorySelectValue] = useState({
-    label: `${category?.libraryNumber} - ${category?.name}`,
+    label: `${category?.libraryNumber} - ${category?.name} (${category?.section})`,
     itemCategoryId: category?.categoryId,
   })
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [bookStatus, setBookStatus] = React.useState(item.status);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
@@ -31,6 +39,10 @@ const ItemEditForm = ({ item, itemCategories, itemCategoryMap, onSave }: IProps)
       ...editedItem,
       [name]: value
     })
+  }
+
+  const handleBookStatusChange = (event: any) => {
+    setBookStatus(event?.target?.value || BOOK_STATUS_AVAILABLE);
   }
 
   const handleItemCategoryChange = (_: any, selectedCategoryValue: any) => {
@@ -53,6 +65,7 @@ const ItemEditForm = ({ item, itemCategories, itemCategoryMap, onSave }: IProps)
             itemCategoryId: categorySelectValue.itemCategoryId,
             itemTypeId: ITEM_TYPE_ID.BOOK,
             uuid: item?.uuid,
+            status: bookStatus,
           }
         }
       )
@@ -87,7 +100,7 @@ const ItemEditForm = ({ item, itemCategories, itemCategoryMap, onSave }: IProps)
             value={categorySelectValue}
             options={itemCategories.map((category) => {
               return {
-                label: `${category.libraryNumber} - ${category.name}`,
+                label: `${category.libraryNumber} - ${category.name} (${category.section})`,
                 itemCategoryId: category.categoryId,
               }
             })}
@@ -150,6 +163,20 @@ const ItemEditForm = ({ item, itemCategories, itemCategoryMap, onSave }: IProps)
             value={editedItem.note}
             onChange={handleInputChange}
           />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            select
+            value={bookStatus}
+            label="Book Status"
+            onChange={handleBookStatusChange}
+          >
+            <MenuItem value={BOOK_STATUS_AVAILABLE}>{BOOK_STATUS_AVAILABLE}</MenuItem>
+            <MenuItem value={BOOK_STATUS_LENT}>{BOOK_STATUS_LENT}</MenuItem>
+            <MenuItem value={BOOK_STATUS_MISSING}>{BOOK_STATUS_MISSING}</MenuItem>
+            <MenuItem value={BOOK_STATUS_DELETED}>{BOOK_STATUS_DELETED}</MenuItem>
+          </TextField>
         </Grid>
         <Grid item xs={12}>
           <Button disabled={isSubmitting} type="submit" variant="contained" color="primary" fullWidth>
