@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { Box, Button, Grid } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import axios from 'axios'
+import Link from 'next/link'
 
-import { WEB_URL } from 'src/constants'
+import { WEB_URL, ITEM_TYPE_ID, DEFAULT_CATEGORY_ID, BOOK_STATUS_AVAILABLE } from 'src/constants'
 import { IItem, IItemCategory, IItemCategoryMap } from 'src/types'
 import AlertDialog from 'src/components/AlertDialog'
 
@@ -16,8 +17,11 @@ interface IProps {
   allItems: IItem[]
   itemCategories: IItemCategory[],
   itemCategoryMap: IItemCategoryMap,
+  visibleFields: string[]
   uuidToLink?: string
   onItemLinked?: (linkedItem: IItem) => void
+  onItemUpdated?: (updatedItem: IItem) => void
+  isNewBookAddingEnabled: boolean
 }
 
 interface IAlertProps {
@@ -47,7 +51,7 @@ const defaultAlertProps = {
 }
 
 export default function ItemList({
-  allItems, itemCategories, itemCategoryMap, uuidToLink, onItemLinked
+  allItems, itemCategories, itemCategoryMap, visibleFields, uuidToLink, onItemLinked, onItemUpdated, isNewBookAddingEnabled
 }: IProps) {
   const [isLinking, setIsLinking] = useState(false)
   const [tableRows, setTableRows] = useState<tableRowData[]>([])
@@ -89,6 +93,20 @@ export default function ItemList({
     }
   }
 
+  const handleNewBookAdded = (newAddedItem?: IItem) => {
+    if (newAddedItem) {
+      const newTableRows = [
+        {
+          ...newAddedItem,
+          id: newAddedItem.itemId
+        },
+        ...tableRows
+      ]
+
+      setTableRows(newTableRows)
+    }
+  }
+
   const handleItemSave = (savedItem?: IItem) => {
     if (savedItem) {
       const newTableRows = [...tableRows]
@@ -100,92 +118,15 @@ export default function ItemList({
         id: savedItem.itemId
       }
       setTableRows(newTableRows)
+
+      if (onItemUpdated) {
+        onItemUpdated(savedItem)
+      }
     }
   }
 
-  const columnDefs: GridColDef[] = [
+  const allColumnDefs: GridColDef[] = [
     {
-      field: "edit",
-      headerName: "",
-      sortable: false,
-      hideable: false,
-      filterable: false,
-      width: 90,
-      renderCell: (params) => {
-        return (
-          <ItemEdit
-            item={params?.row}
-            itemCategories={itemCategories}
-            itemCategoryMap={itemCategoryMap}
-            onSave={handleItemSave}
-          >
-            <Button fullWidth variant="contained" color="info">
-              Edit
-            </Button>
-          </ItemEdit>
-        );
-      },
-    },
-    {
-      field: 'title',
-      headerName: 'Title',
-      filterable: true,
-      hideable: false,
-      minWidth: 250,
-      flex: 3,
-    },
-    {
-      field: 'author',
-      headerName: 'Author',
-      filterable: true,
-      hideable: true,
-      minWidth: 200,
-      flex: 3,
-    },
-    {
-      field: 'publisher',
-      headerName: 'Publisher',
-      filterable: true,
-      hideable: true,
-      minWidth: 200,
-      flex: 3,
-    },
-    {
-      field: 'category',
-      headerName: 'Category',
-      filterable: true,
-      hideable: true,
-      minWidth: 200,
-      flex: 3,
-    },
-    {
-      field: 'libraryNumber',
-      headerName: 'Library Number',
-      filterable: true,
-      hideable: true,
-      minWidth: 200,
-      flex: 2,
-    },
-    {
-      field: 'note',
-      headerName: 'Note',
-      filterable: true,
-      hideable: true,
-      minWidth: 200,
-      flex: 2,
-    },
-    {
-      field: 'status',
-      headerName: 'Status',
-      filterable: true,
-      hideable: true,
-      minWidth: 200,
-      flex: 2,
-    },
-  ]
-
-  if (uuidToLink) {
-    columnDefs.unshift({
       field: "link",
       headerName: "",
       sortable: false,
@@ -219,8 +160,163 @@ export default function ItemList({
           </Button>
         )
       }
-    })
-  }
+    },
+    {
+      field: "edit",
+      headerName: "",
+      sortable: false,
+      hideable: false,
+      filterable: false,
+      width: 90,
+      renderCell: (params) => {
+        return (
+          <ItemEdit
+            item={params?.row}
+            itemCategories={itemCategories}
+            itemCategoryMap={itemCategoryMap}
+            onSave={handleItemSave}
+          >
+            <Button fullWidth variant="contained" color="info">
+              Edit
+            </Button>
+          </ItemEdit>
+        )
+      },
+    },
+    {
+      field: 'title',
+      headerName: 'Title',
+      filterable: true,
+      hideable: false,
+      minWidth: 250,
+      flex: 3,
+      renderCell: (params) => {
+        return (
+          <Link href={`/item/${params?.row?.itemId}/details`}>{params?.row?.title}</Link>
+        )
+      },
+    },
+    {
+      field: 'author',
+      headerName: 'Author',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+    },
+    {
+      field: 'publisher',
+      headerName: 'Publisher',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+    },
+    {
+      field: 'category',
+      headerName: 'Category',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+    },
+    {
+      field: 'categorySection',
+      headerName: 'Section',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+    },
+    {
+      field: 'libraryNumber',
+      headerName: 'Library Number',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+    },
+    {
+      field: 'borrowedAt',
+      headerName: 'Borrowed',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+    },
+    {
+      field: 'dueAt',
+      headerName: 'Due',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+      renderCell: (params) => {
+        const overdueDays = params?.row?.overdueDays || 0
+        return overdueDays > 0 ? (
+          <strong style={{ color: 'red' }}>{params?.row?.dueAt}</strong>
+        ) : params?.row?.dueAt
+      },
+    },
+    {
+      field: 'hasRenewed',
+      headerName: 'Renewed',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+      renderCell: (params) => {
+        return params?.row?.hasRenewed ? 'Yes' : 'No'
+      },
+    },
+    {
+      field: 'overdueDays',
+      headerName: 'Overdue Days',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+      renderCell: (params) => {
+        const overdueDays = params?.row?.overdueDays || 0
+        return overdueDays > 0 ? (
+          <strong style={{ color: 'red' }}>{overdueDays}</strong>
+        ) : 0
+      },
+    },
+    {
+      field: 'borrowerName',
+      headerName: 'Borrower Name',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+    },
+    {
+      field: 'borrowerPhoneNumber',
+      headerName: 'Phone Number',
+      filterable: true,
+      hideable: true,
+      minWidth: 200,
+      flex: 2,
+    },
+  ]
+
+  const visibleFieldsSet = new Set(visibleFields || [])
+  const columnDefs: GridColDef[] = []
+
+  allColumnDefs.forEach((colDef) => {
+    if (visibleFieldsSet.has(colDef.field)) {
+      columnDefs.push(colDef)
+    }
+  })
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -239,6 +335,27 @@ export default function ItemList({
           <Grid item xs={8}>{alertProps?.item?.publisher}</Grid>
         </Grid>
       </AlertDialog>
+
+      {
+        isNewBookAddingEnabled ? (
+          <div style={{ padding: '0 0 20px 0' }}>
+            <ItemEdit
+              item={{
+                uuid: '',
+                itemTypeId: ITEM_TYPE_ID.BOOK,
+                itemCategoryId: DEFAULT_CATEGORY_ID,
+                status: BOOK_STATUS_AVAILABLE,
+              }}
+              itemCategories={itemCategories}
+              itemCategoryMap={itemCategoryMap}
+              onSave={handleNewBookAdded}
+              dialogTitle="Add a new book"
+            >
+              <Button variant="contained" color="primary">Add a new book</Button>
+            </ItemEdit>
+          </div>
+        ): null
+      }
 
       <DataGrid
         rows={tableRows}

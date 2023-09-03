@@ -8,17 +8,17 @@ import { IItem, IItemCategory, IItemCategoryMap } from 'src/types'
 
 import getItemCategories from '../getItemCategories'
 import formatItemDataFromDb from '../formatItemDataFromDb'
-import Main from './Main'
+import ItemDetailsUiWithAdminActions from './details/ItemDetailsUiWithAdminActions'
 
 interface IProps {
   params: {
-    uuid: string
+    itemIdOrUuid: string
   }
 }
 
 async function ItemPage({ params }: IProps) {
-  const { uuid } = params
-  const decodedUuid = decodeURI(uuid)
+  const { itemIdOrUuid } = params
+  const decodedUuid = decodeURI(itemIdOrUuid)
   const isValidUuid = (uuidValidate(decodedUuid) && uuidVersion(decodedUuid) === 4)
 
   let hasAdminPrivilege = false
@@ -50,11 +50,12 @@ async function ItemPage({ params }: IProps) {
       <div>
         <Link href="/member/sign-in">Sign In</Link>
       </div>
-      <Main
+      <ItemDetailsUiWithAdminActions
         uuid={decodedUuid}
         itemCategories={itemCategories}
         itemCategoryMap={itemCategoryMap}
         hasAdminPrivilege={hasAdminPrivilege}
+        hasBorrowButton={true}
         item={item}
       />
     </div>

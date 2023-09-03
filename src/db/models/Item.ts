@@ -62,13 +62,23 @@ const Item = (sequelize: any, DataTypes: any) => {
         references: { model: 'book_borrower', key: 'id' },
       },
       status: {
-        type: DataTypes.ENUM(['AVAILABLE', 'LENT', 'DELETED', 'MISSING']),
+        type: DataTypes.ENUM(['AVAILABLE', 'BORROWED', 'DELETED', 'MISSING']),
         allowNull: false,
         defaultValue: 'AVAILABLE'
       },
-      lentAt: {
-        field: 'lent_at',
+      borrowedAt: {
+        field: 'borrowed_at',
         type: DataTypes.DATE,
+      },
+      dueAt: {
+        field: 'due_at',
+        type: DataTypes.DATEONLY,
+      },
+      hasRenewed: {
+        field: 'has_renewed',
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       createdAt: {
         field: 'created_at',
@@ -121,6 +131,10 @@ const Item = (sequelize: any, DataTypes: any) => {
         {
           unique: false,
           fields: ['borrower_id'],
+        },
+        {
+          unique: false,
+          fields: ['borrowed_at'],
         },
       ],
     },

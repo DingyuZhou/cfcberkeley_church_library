@@ -4,9 +4,15 @@ import { cookies } from 'next/headers'
 import isAdmin from 'src/util/member/isAdmin'
 import ItemSearch from 'src/app/item/Search'
 
+import getItemCategories from './item/getItemCategories'
+
 export default async function Home() {
   const appCookies = cookies()
-  const hasAdminPrivilege = await isAdmin(appCookies)
+
+  const [hasAdminPrivilege, itemCategorieInfo] = await Promise.all([
+    isAdmin(appCookies),
+    getItemCategories(),
+  ])
 
   return (
     <main>
@@ -14,9 +20,16 @@ export default async function Home() {
       <div>Welcome!</div>
       <div><Link href="/member/sign-in">Sign In</Link></div>
 
-      <div style={{ padding: '30px 20px' }}>
-        <ItemSearch />
-      </div>
+      {
+        (itemCategorieInfo.itemCategorySections && itemCategorieInfo?.itemCategoryMap) ? (
+          <div style={{ padding: '30px 20px' }}>
+            <ItemSearch
+              itemCategorySections={itemCategorieInfo.itemCategorySections}
+              itemCategoryMap={itemCategorieInfo.itemCategoryMap}
+            />
+          </div>
+        ) : null
+      }
 
       {
         hasAdminPrivilege ? (
@@ -27,6 +40,11 @@ export default async function Home() {
             <div><Link href="/item/list">All Books</Link></div>
             <br />
             <div><Link href="/item-category/list">All Book Categories</Link></div>
+            <br /><br /><br />
+            <div><Link href="/item/borrowed">All Borrowed Books</Link></div>
+            <br />
+            <div><Link href="/book-borrower/list">All Book Borrowers</Link></div>
+            <br />
           </div>
         ) : null
       }

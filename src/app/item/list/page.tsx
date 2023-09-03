@@ -39,11 +39,22 @@ async function ItemListPage() {
   if (hasAdminPrivilege) {
     return (
       <div style={{ padding: '5px 20px 60px 20px' }}>
-        <h1 style={{ paddingBottom: '30px' }}>All Books</h1>
+        <h1 style={{ paddingBottom: '20px' }}>All Books</h1>
         <ItemList
           allItems={allItems}
           itemCategories={itemCategoryInfo.itemCategories}
           itemCategoryMap={itemCategoryInfo.itemCategoryMap}
+          visibleFields={[
+            'edit',
+            'title',
+            'author',
+            'publisher',
+            'category',
+            'categorySection',
+            'libraryNumber',
+            'status',
+          ]}
+          isNewBookAddingEnabled={true}
         />
       </div>
     )

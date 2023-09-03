@@ -1,5 +1,6 @@
 import { getDb } from 'src/db/models'
-import { IItemCategory, IItemCategoryMap } from 'src/types'
+import { IItemCategory, IItemCategorySection, IItemCategoryMap } from 'src/types'
+import { getCategorySectionDisplayString } from 'src/util/itemCategory'
 
 export default async function getItemCategories() {
   const { models } = getDb()
@@ -13,7 +14,10 @@ export default async function getItemCategories() {
   })
 
   const itemCategories: IItemCategory[] = []
+  const itemCategorySections: IItemCategorySection[] = []
   const itemCategoryMap: IItemCategoryMap = {}
+
+  const categorySectionSet = new Set<string>()
 
   if (Array.isArray(itemCategorieResponse)) {
     itemCategorieResponse.forEach((rawCategory: any) => {
@@ -30,13 +34,27 @@ export default async function getItemCategories() {
 
         itemCategories.push(formattedCategory)
 
+        if (rawCategory.id > 0) {
+          categorySectionSet.add(rawCategory.section)
+        }
+
         itemCategoryMap[formattedCategory.categoryId] = formattedCategory
       }
     })
   }
 
+  Array.from(categorySectionSet).sort((sectionA: string, sectionB: string) => {
+    return sectionA.localeCompare(sectionB);
+  }).forEach((categorySection) => {
+    itemCategorySections.push({
+      categorySection,
+      categorySectionDisplayName: getCategorySectionDisplayString(categorySection),
+    })
+  })
+
   return {
     itemCategories,
+    itemCategorySections,
     itemCategoryMap,
   }
 }

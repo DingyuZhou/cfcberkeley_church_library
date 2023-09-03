@@ -8,7 +8,7 @@ import { WEB_URL } from 'src/constants'
 import { IItem, IItemCategory, IItemCategoryMap } from 'src/types'
 import formatItemDataFromDb from 'src/app/item/formatItemDataFromDb'
 
-import ItemList from '../ItemList'
+import ItemList from '../../ItemList'
 
 interface IProps {
   itemUuid: string
@@ -90,8 +90,20 @@ function AdminBookSearch({ itemUuid, itemCategories, itemCategoryMap, onItemLink
               allItems={searchedItems}
               itemCategories={itemCategories}
               itemCategoryMap={itemCategoryMap}
+              visibleFields={[
+                'link',
+                'edit',
+                'title',
+                'author',
+                'publisher',
+                'category',
+                'categorySection',
+                'libraryNumber',
+                'status',
+              ]}
               uuidToLink={itemUuid}
               onItemLinked={onItemLinked}
+              isNewBookAddingEnabled={false}
             />
           </Grid>
         ) : null

@@ -6,6 +6,8 @@ export interface IItem {
   itemId?: string
   title?: string
   category?: string
+  categorySection?: string
+  categorySectionDisplayString?: string
   libraryNumber?: string
   author?: string
   translator?: string
@@ -16,6 +18,15 @@ export interface IItem {
   details?: any
   status?: string
   isAvailable?: boolean
+  isBorrowed?: boolean
+  borrowedAt?: string
+  dueAt?: string
+  borrowerId?: string
+  borrowerName?: string
+  borrowerPhoneNumber?: string
+  hasRenewed?: boolean
+  overdueDays?: number
+  isEligibleToRenew?: boolean
 }
 
 export interface IItemCategory {
@@ -26,6 +37,11 @@ export interface IItemCategory {
   libraryNumber?: string
   location?: string
   details?: any
+}
+
+export interface IItemCategorySection {
+  categorySection: string
+  categorySectionDisplayName: string
 }
 
 export interface IItemCategoryMap {

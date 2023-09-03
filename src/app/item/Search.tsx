@@ -5,21 +5,34 @@ import { TextField, Select, MenuItem, Button, Grid } from "@mui/material"
 import axios from 'axios'
 import styled from "@emotion/styled"
 
-import { WEB_URL, BOOK_STATUS_AVAILABLE } from 'src/constants'
-import { IItem } from 'src/types'
+import { WEB_URL, BOOK_STATUS_AVAILABLE, ITEM_TYPE_ID } from 'src/constants'
+import { IItem, IItemCategorySection, IItemCategoryMap } from 'src/types'
 
-import ItemDetails from './[uuid]/ItemDetails'
+import ItemDetailsUi from './[itemIdOrUuid]/details/ItemDetailsUi'
 import formatItemDataFromDb from './formatItemDataFromDb'
+
+interface IProps {
+  itemCategorySections: IItemCategorySection[],
+  itemCategoryMap: IItemCategoryMap
+}
 
 const ItemDetailsContainer = styled.div`
   padding: 10px 0;
 `
 
-const ItemSearch: React.FC = () => {
+const ALL_CATEGORY_SECTIONS = 'All'
+
+function ItemSearch({ itemCategorySections, itemCategoryMap }: IProps) {
   const [searchText, setSearchText] = useState("")
-  const [searchItemType, setSearchItemType] = useState('All')
+  const [searchCategorySection, setSearchCategorySection] = useState(ALL_CATEGORY_SECTIONS)
   const [results, setResults] = useState<IItem[]>([])
+  const [hasUnsubmittedNewSearch, setHasUnsubmittedHasNewSearch] = useState<boolean>(true)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+
+  const handleCategorySectionChange = (event: any) => {
+    setSearchCategorySection(event.target.value as string)
+    setHasUnsubmittedHasNewSearch(true)
+  }
 
   const handleSearch = async (event: any) => {
     if (event) {
@@ -29,7 +42,15 @@ const ItemSearch: React.FC = () => {
     setIsSubmitting(true)
 
     try {
-      const searchResponse = await axios.post(`${WEB_URL}/api/item/search`, { searchText, searchItemType })
+      let itemTypeId = ITEM_TYPE_ID.BOOK
+      let categorySection = ALL_CATEGORY_SECTIONS
+      if (searchCategorySection === ALL_CATEGORY_SECTIONS) {
+        itemTypeId = ITEM_TYPE_ID.ALL
+      } else {
+        categorySection = searchCategorySection
+      }
+
+      const searchResponse = await axios.post(`${WEB_URL}/api/item/search`, { searchText, itemTypeId, categorySection })
       const searchResponseData = searchResponse.data || []
 
       const searchedItems: IItem[] = []
@@ -51,7 +72,7 @@ const ItemSearch: React.FC = () => {
           const formattedItem = formatItemDataFromDb({
             ...rawData,
             ...firstItem,
-          })
+          }, itemCategoryMap)
 
           if (formattedItem) {
             searchedItems.push(formattedItem)
@@ -60,6 +81,7 @@ const ItemSearch: React.FC = () => {
       })
 
       setResults(searchedItems)
+      setHasUnsubmittedHasNewSearch(false)
     } catch (error) {
       console.error(error)
     }
@@ -83,12 +105,19 @@ const ItemSearch: React.FC = () => {
             <Grid item xs={8} md={2}>
               <Select
                 fullWidth
-                value={searchItemType}
-                onChange={(event) => setSearchItemType(event.target.value as string)}
+                value={searchCategorySection}
+                onChange={handleCategorySectionChange}
               >
-                <MenuItem value="All">All</MenuItem>
-                <MenuItem value="Book">Book</MenuItem>
-                <MenuItem value="Video">Video</MenuItem>
+                <MenuItem value={ALL_CATEGORY_SECTIONS}>All</MenuItem>
+                {
+                  itemCategorySections.map((section) => {
+                    return (
+                      <MenuItem key={section.categorySection} value={section.categorySection}>
+                        Book - {section.categorySectionDisplayName}
+                      </MenuItem>
+                    )
+                  })
+                }
               </Select>
             </Grid>
             <Grid item xs={4} md={2}>
@@ -100,17 +129,34 @@ const ItemSearch: React.FC = () => {
         </form>
       </Grid>
 
-      {results.map(result => (
-        <Grid item xs={12} key={result.itemId} style={{ maxWidth: '1000px' }}>
-          <ItemDetailsContainer>
-            <ItemDetails
-              hasAdminPrivilege={false}
-              clickToRedirectUrl={`/item/${result.uuid}`}
-              item={result}
-            />
-          </ItemDetailsContainer>
-        </Grid>
-      ))}
+      {
+        !hasUnsubmittedNewSearch ? (
+          results.length ? (
+            results.map(result => (
+              <Grid item xs={12} key={result.itemId} style={{ maxWidth: '1000px', padding: '10px 0 10px 0' }}>
+                <ItemDetailsContainer>
+                  <ItemDetailsUi
+                    hasAdminPrivilege={false}
+                    clickToRedirectUrl={`/item/${result.itemId}/details`}
+                    item={result}
+                  />
+                </ItemDetailsContainer>
+              </Grid>
+            ))
+          ) : (
+            <Grid item xs={12} style={{ maxWidth: '1000px', fontSize: '20px', padding: '40px 0 20px 0' }}>
+              <div>
+                <div>
+                  Unfortunately, we could not find any matching results for your search.
+                </div>
+                <div style={{ padding: '15px 0 0 0' }}>
+                  If you have any specific titles or keywords in mind, please try refining your search or feel free to ask for assistance. We are here to help!
+                </div>
+              </div>
+            </Grid>
+          )
+        ) : null
+      }
     </Grid>
   )
 }

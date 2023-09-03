@@ -5,6 +5,7 @@ CREATE OR REPLACE FUNCTION book_borrow_checkout(i_borrower_uuid TEXT, i_one_time
   RETURNS TABLE(
     borrower_id BIGINT,
     item_id BIGINT,
+    due_at TIMESTAMP WITH TIME ZONE,
     checkout_status TEXT,
     error_message TEXT
   )
@@ -12,12 +13,13 @@ CREATE OR REPLACE FUNCTION book_borrow_checkout(i_borrower_uuid TEXT, i_one_time
 AS $$
 
 DECLARE v_borrower_id BIGINT := NULL;
-DECLARE v_item_to_lent_id BIGINT := NULL;
+DECLARE v_item_to_borrow_id BIGINT := NULL;
 DECLARE v_remaining_retry_count INTEGER := NULL;
 DECLARE v_passcode_expire_at TIMESTAMP WITH TIME ZONE := NULL;
 DECLARE v_checkout_status TEXT := NULL;
 DECLARE v_error_message TEXT := '';
-DECLARE v_lent_at TIMESTAMP WITH TIME ZONE := NOW();
+DECLARE v_borrowed_at TIMESTAMP WITH TIME ZONE := NOW();
+DECLARE v_due_at TIMESTAMP WITH TIME ZONE := NULL;
 
 BEGIN
 
@@ -30,6 +32,7 @@ BEGIN
 
   IF v_borrower_id IS NULL THEN
     UPDATE book_borrower SET remaining_retry_count = remaining_retry_count - 1
+    WHERE book_borrower.uuid = i_borrower_uuid
     RETURNING book_borrower.passcode_expire_at, book_borrower.remaining_retry_count INTO v_passcode_expire_at, v_remaining_retry_count;
 
     SELECT
@@ -43,27 +46,30 @@ BEGIN
   ELSE
     BEGIN
       UPDATE item SET
-        status = 'LENT',
+        status = 'BORROWED',
         borrower_id = v_borrower_id,
-        lent_at = v_lent_at
+        borrowed_at = v_borrowed_at,
+        due_at = v_borrowed_at + INTERVAL '30 DAYS',
+        has_renewed = FALSE
       WHERE item.id = i_item_id
         AND item.status = 'AVAILABLE'
-      RETURNING item.id INTO v_item_to_lent_id;
+      RETURNING item.id, item.due_at INTO v_item_to_borrow_id, v_due_at;
 
-      IF v_item_to_lent_id IS NULL THEN
+      IF v_item_to_borrow_id IS NULL THEN
         SELECT
           'ERROR' AS checkout_status,
           'The book is not available.' AS error_message
         INTO v_checkout_status, v_error_message;
       ELSE
         INSERT INTO book_borrow_history (borrower_id, item_id, borrowed_at)
-        VALUES (v_borrower_id, i_item_id, v_lent_at);
+        VALUES (v_borrower_id, i_item_id, v_borrowed_at);
 
         UPDATE book_borrower SET
           checkout_passcode_hash = NULL,
           passcode_expire_at = NULL,
           one_time_password_hash = NULL,
-          remaining_retry_count = NULL
+          remaining_retry_count = NULL,
+          is_phone_number_verified = TRUE
         WHERE book_borrower.id = v_borrower_id;
 
         SELECT 'SUCCESS' INTO v_checkout_status;
@@ -75,6 +81,7 @@ BEGIN
     SELECT
       v_borrower_id AS borrower_id,
       i_item_id AS item_id,
+      v_due_at AS due_at,
       v_checkout_status AS checkout_status,
       v_error_message AS error_message;
 

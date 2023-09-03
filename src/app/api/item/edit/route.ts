@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { BOOK_STATUS_BORROWED } from 'src/constants'
 
 import { getDb } from 'src/db/models'
 import chineseConverter from 'src/util/chineseConverter'
@@ -33,7 +34,27 @@ export async function POST(request: NextRequest) {
   if (hasAdminPrivilege) {
     const { item } = await request.json()
 
-    const { db } = getDb()
+    const { db, models } = getDb()
+
+    if (item?.id) {
+      if (item.status !== BOOK_STATUS_BORROWED) {
+        const alreadySavedItem = await models.Item.findOne({ where: { id: item.id } })
+
+        if (alreadySavedItem.status === BOOK_STATUS_BORROWED) {
+          await db.query(
+            `
+              SELECT * FROM return_book(:itemId);
+            `,
+            {
+              replacements: {
+                itemId: item.id,
+              },
+            },
+          )
+        }
+      }
+    }
+
     const editResponse = await db.query(
       item?.id ? itemUpdateSql : itemCreateSql,
       {

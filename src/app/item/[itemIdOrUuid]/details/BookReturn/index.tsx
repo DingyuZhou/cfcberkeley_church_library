@@ -66,7 +66,7 @@ export default function BookReturn({ item, children }: IProps) {
       >
         {
           isSuccess ? (
-            <div>The book, {item?.title}, has been successfully returned!</div>
+            <div style={{ fontSize: '20px' }}>The book, <strong><i>{item?.title}</i></strong>, has been successfully returned!</div>
           ) : (
             <Grid container spacing={2}>
               <Grid item xs={4} style={{ textAlign: 'right', fontWeight: 700 }}>书名</Grid>

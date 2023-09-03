@@ -1,5 +1,6 @@
 'use client'
 
+import { v4 as uuidv4 } from 'uuid'
 import React, { ChangeEvent, FormEvent, useState } from "react"
 import axios from "axios"
 import { Grid, TextField, Button, Autocomplete, MenuItem } from '@mui/material'
@@ -8,9 +9,9 @@ import {
   WEB_URL,
   ITEM_TYPE_ID,
   BOOK_STATUS_AVAILABLE,
-  BOOK_STATUS_LENT,
   BOOK_STATUS_DELETED,
   BOOK_STATUS_MISSING,
+  BOOK_STATUS_BORROWED,
 } from 'src/constants'
 import { IItem, IItemCategory, IItemCategoryMap } from 'src/types'
 import formatItemDataFromDb from '../formatItemDataFromDb'
@@ -64,12 +65,15 @@ const ItemEditForm = ({ item, itemCategories, itemCategoryMap, onSave }: IProps)
             id: editedItem.itemId,
             itemCategoryId: categorySelectValue.itemCategoryId,
             itemTypeId: ITEM_TYPE_ID.BOOK,
-            uuid: item?.uuid,
+            uuid: item?.uuid || `temp-${uuidv4()}`,
             status: bookStatus,
           }
         }
       )
       editedItemData = formatItemDataFromDb(response?.data, itemCategoryMap)
+
+      console.log('--- editedItemData: ', editedItemData)
+
     } catch (error: any) {
       console.log(error)
     }
@@ -173,9 +177,9 @@ const ItemEditForm = ({ item, itemCategories, itemCategoryMap, onSave }: IProps)
             onChange={handleBookStatusChange}
           >
             <MenuItem value={BOOK_STATUS_AVAILABLE}>{BOOK_STATUS_AVAILABLE}</MenuItem>
-            <MenuItem value={BOOK_STATUS_LENT}>{BOOK_STATUS_LENT}</MenuItem>
             <MenuItem value={BOOK_STATUS_MISSING}>{BOOK_STATUS_MISSING}</MenuItem>
             <MenuItem value={BOOK_STATUS_DELETED}>{BOOK_STATUS_DELETED}</MenuItem>
+            <MenuItem disabled value={BOOK_STATUS_BORROWED}>BORROWED</MenuItem>
           </TextField>
         </Grid>
         <Grid item xs={12}>

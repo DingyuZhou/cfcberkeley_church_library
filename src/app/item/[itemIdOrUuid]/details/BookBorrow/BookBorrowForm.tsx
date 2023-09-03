@@ -10,10 +10,11 @@ let generatedPasscode = ''
 
 interface IProps {
   itemId?: string
-  onBookBorrowed: () => void
+  onBookBorrowed: (dueAt: string) => void
+  isForRenew: boolean
 }
 
-function BookBorrowForm({ itemId, onBookBorrowed }: IProps) {
+function BookBorrowForm({ itemId, onBookBorrowed, isForRenew }: IProps) {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -39,7 +40,7 @@ function BookBorrowForm({ itemId, onBookBorrowed }: IProps) {
       && hasSentCheckoutPasscode
       && (!checkoutPasscode || checkoutPasscode.length !== 6)
     ) {
-      errorText = 'The checkout passcode is invalid'
+      errorText = `The ${isForRenew ? 'renew' : 'checkout'} passcode is invalid`
     }
 
     if (errorText) {
@@ -63,6 +64,7 @@ function BookBorrowForm({ itemId, onBookBorrowed }: IProps) {
     setHasSentCheckoutPasscode(true)
     setBorrowerUuid('')
     setBorrowerOneTimePassword('')
+    setCheckoutPasscode('')
 
     let registerResponse: any = null
 
@@ -111,11 +113,12 @@ function BookBorrowForm({ itemId, onBookBorrowed }: IProps) {
           itemId,
           borrowerUuid,
           checkoutPasscode,
+          isForRenew,
           oneTimePassword: borrowerOneTimePassword,
         })
 
         if (checkoutResponse?.data?.isSuccess) {
-          onBookBorrowed()
+          onBookBorrowed(checkoutResponse?.data?.dueAt)
         } else {
           setErrorMessage(checkoutResponse?.data?.errorMessage || UNEXPECTED_INTERNAL_ERROR)
           setIsLoading(false)
@@ -209,7 +212,7 @@ function BookBorrowForm({ itemId, onBookBorrowed }: IProps) {
                   <TextField
                     required
                     fullWidth
-                    label="Checkout Passcode"
+                    label={ isForRenew ? 'Renew Passcode' : 'Checkout Passcode' }
                     value={checkoutPasscode}
                     onChange={(e) => {
                       setErrorMessage('')
@@ -225,8 +228,19 @@ function BookBorrowForm({ itemId, onBookBorrowed }: IProps) {
           ) : null
         }
         <Grid item xs={12} style={{ paddingTop: '40px' }}>
+          {
+            hasSentCheckoutPasscode ? (
+              <div style={{ width: '100%', textAlign: 'center', padding: '0 0 30px 0', fontSize: '20px' }}>
+                The { isForRenew ? 'renew' : 'checkout' } passcode has just sent you via SMS. It may take a few minutes for it to arrive. Thanks for your patience!
+              </div>
+            ) : null
+          }
           <Button fullWidth variant="contained" type="submit" size="large" disabled={isLoading}>
-            { hasSentCheckoutPasscode ? 'Checkout' : 'Get a checkout passcode' }
+            {
+              hasSentCheckoutPasscode
+                ? (isForRenew ? 'Renew' : 'Checkout')
+                : (isForRenew ? 'Get a renew passcode' : 'Get a checkout passcode')
+            }
           </Button>
         </Grid>
         {

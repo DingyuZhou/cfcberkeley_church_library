@@ -30,23 +30,25 @@ BEGIN
       checkout_passcode_hash,
       passcode_expire_at,
       one_time_password_hash,
-      remaining_retry_count
+      remaining_retry_count,
+      is_phone_number_verified
     ) VALUES (
       v_borrower_uuid,
       i_first_name,
       i_last_name,
       i_phone_number,
       CRYPT(i_checkout_passcode, GEN_SALT('bf')),
-      (NOW() + INTERVAL '15 MINUTES'),
+      (NOW() + INTERVAL '30 MINUTES'),
       CRYPT(v_one_time_password, GEN_SALT('bf')),
-      5
+      5,
+      FALSE
     );
   ELSE
     UPDATE book_borrower SET
       first_name = i_first_name,
       last_name = i_last_name,
       checkout_passcode_hash = CRYPT(i_checkout_passcode, GEN_SALT('bf')),
-      passcode_expire_at = (NOW() + INTERVAL '15 MINUTES'),
+      passcode_expire_at = (NOW() + INTERVAL '30 MINUTES'),
       one_time_password_hash = CRYPT(v_one_time_password, GEN_SALT('bf')),
       remaining_retry_count = 5
     WHERE book_borrower.id = v_borrower_id
