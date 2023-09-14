@@ -31,6 +31,10 @@ export default async function Home() {
         ) : null
       }
 
+      <div style={{ padding: '30px 0' }}>
+        <Link href="/item/donate">Donate Books</Link>
+      </div>
+
       {
         hasAdminPrivilege ? (
           <div>

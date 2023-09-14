@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Grid, TextField, Button } from '@mui/material'
 import axios from 'axios'
 
 import { WEB_URL, UNEXPECTED_INTERNAL_ERROR } from 'src/constants'
+import { formatPhoneNumberWhileTyping } from 'src/util/string'
 
 import CountdownButton from './CountdownButton'
 
@@ -24,6 +25,17 @@ function BookBorrowForm({ itemId, onBookBorrowed, isForRenew }: IProps) {
   const [borrowerUuid, setBorrowerUuid] = useState('')
   const [borrowerOneTimePassword, setBorrowerOneTimePassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isGetPasscodeButtonEnabled, setIsGetPasscodeButtonEnabled] = useState(false)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIsGetPasscodeButtonEnabled(true)
+    }, 5000)
+
+    return () => {
+      clearInterval(timer)
+    }
+  }, [])
 
   const validateInput = (shouldValidateCheckoutPasscode: boolean) => {
     const digitsOnlyPhoneNumber = phoneNumber.replace(/\D/g, '') || ''
@@ -132,38 +144,9 @@ function BookBorrowForm({ itemId, onBookBorrowed, isForRenew }: IProps) {
     }
   }
 
-  const formatPhoneNumber = (input: string) => {
-    // Remove all non-digit characters from the input
-    let digitsOnly = input.replace(/\D/g, '')
-
-    if (
-      phoneNumber.length > input.length
-      && phoneNumber.indexOf(input) === 0
-      && digitsOnly === phoneNumber.replace(/\D/g, '')
-    ) {
-      digitsOnly = digitsOnly.slice(0, -1)
-    }
-
-    // Format the phone number
-    let formattedNumber = ''
-
-    if (digitsOnly.length >= 1) {
-      formattedNumber += `(${digitsOnly.slice(0, 3)}`
-    }
-
-    if (digitsOnly.length >= 3) {
-      formattedNumber += `) ${digitsOnly.slice(3, 6)}`
-    }
-    if (digitsOnly.length >= 6) {
-      formattedNumber += `-${digitsOnly.slice(6, 10)}`
-    }
-
-    return formattedNumber
-  }
-
   const handlePhoneNumberChange = (event: any) => {
     const input = event.target.value
-    const formattedNumber = formatPhoneNumber(input)
+    const formattedNumber = formatPhoneNumberWhileTyping(phoneNumber, input)
     setErrorMessage('')
     setPhoneNumber(formattedNumber)
   }
@@ -235,7 +218,7 @@ function BookBorrowForm({ itemId, onBookBorrowed, isForRenew }: IProps) {
               </div>
             ) : null
           }
-          <Button fullWidth variant="contained" type="submit" size="large" disabled={isLoading}>
+          <Button fullWidth variant="contained" type="submit" size="large" disabled={isLoading || !isGetPasscodeButtonEnabled}>
             {
               hasSentCheckoutPasscode
                 ? (isForRenew ? 'Renew' : 'Checkout')
