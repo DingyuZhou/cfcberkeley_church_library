@@ -53,7 +53,7 @@ export default function BookBorrow({ item, children, isForRenew }: IProps) {
                 }
               </div>
             ) : (
-              <BookBorrowForm itemId={item.itemId} onBookBorrowed={handleBookBorrowed} isForRenew={isForRenew} />
+              <BookBorrowForm itemId={item.itemId} itemTitle={item.title} onBookBorrowed={handleBookBorrowed} isForRenew={isForRenew} />
             )
           }
         </DialogContent>

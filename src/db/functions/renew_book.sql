@@ -4,6 +4,7 @@ DROP FUNCTION IF EXISTS renew_book(i_renewer_uuid TEXT, i_one_time_password TEXT
 CREATE OR REPLACE FUNCTION renew_book(i_renewer_uuid TEXT, i_one_time_password TEXT, i_checkout_passcode TEXT, i_item_id BIGINT)
   RETURNS TABLE(
     borrower_id BIGINT,
+    phone_number TEXT,
     item_id BIGINT,
     due_at TIMESTAMP WITH TIME ZONE,
     checkout_status TEXT,
@@ -14,6 +15,7 @@ AS $$
 
 DECLARE v_renewer_id BIGINT := NULL;
 DECLARE v_borrower_id BIGINT := NULL;
+DECLARE v_phone_number TEXT := '';
 DECLARE v_item_to_renew_id BIGINT := NULL;
 DECLARE v_remaining_retry_count INTEGER := NULL;
 DECLARE v_passcode_expire_at TIMESTAMP WITH TIME ZONE := NULL;
@@ -23,7 +25,7 @@ DECLARE v_due_at TIMESTAMP WITH TIME ZONE := NULL;
 
 BEGIN
 
-  SELECT bb.id INTO v_renewer_id FROM book_borrower AS bb
+  SELECT bb.id, bb.phone_number INTO v_renewer_id, v_phone_number FROM book_borrower AS bb
   WHERE bb.uuid = i_renewer_uuid
     AND bb.one_time_password_hash = CRYPT(i_one_time_password, bb.one_time_password_hash)
     AND bb.checkout_passcode_hash = CRYPT(i_checkout_passcode, bb.checkout_passcode_hash)
@@ -85,6 +87,7 @@ BEGIN
   RETURN QUERY
     SELECT
       v_renewer_id AS borrower_id,
+      v_phone_number AS phone_number,
       i_item_id AS item_id,
       v_due_at AS due_at,
       v_checkout_status AS checkout_status,

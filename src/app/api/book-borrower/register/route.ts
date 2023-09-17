@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     || !digitsOnlyPhoneNumber
     || digitsOnlyPhoneNumber.length !== 10
   ) {
-    isSuccess = true
+    isSuccess = false
     errorMessage = 'Invalid inputs'
   }
 

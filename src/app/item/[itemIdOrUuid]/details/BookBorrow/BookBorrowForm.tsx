@@ -11,11 +11,12 @@ let generatedPasscode = ''
 
 interface IProps {
   itemId?: string
+  itemTitle?: string
   onBookBorrowed: (dueAt: string) => void
   isForRenew: boolean
 }
 
-function BookBorrowForm({ itemId, onBookBorrowed, isForRenew }: IProps) {
+function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProps) {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -41,9 +42,12 @@ function BookBorrowForm({ itemId, onBookBorrowed, isForRenew }: IProps) {
     const digitsOnlyPhoneNumber = phoneNumber.replace(/\D/g, '') || ''
     let errorText = ''
 
-    if (!firstName) {
+    const trimmedFirstName = (firstName || '').trim()
+    const trimmedLastName = (lastName || '').trim()
+
+    if (!trimmedFirstName) {
       errorText = 'The first name is required'
-    } else if (!lastName) {
+    } else if (!trimmedLastName) {
       errorText = 'The last name is required'
     } else if (digitsOnlyPhoneNumber.length !== 10 || digitsOnlyPhoneNumber[0] === '0') {
       errorText = 'The phone number is invalid'
@@ -60,7 +64,11 @@ function BookBorrowForm({ itemId, onBookBorrowed, isForRenew }: IProps) {
       return null
     }
 
-    return { firstName, lastName, phoneNumber: digitsOnlyPhoneNumber }
+    return {
+      firstName: trimmedFirstName,
+      lastName: trimmedLastName,
+      phoneNumber: digitsOnlyPhoneNumber,
+    }
   }
 
   const registerBookBorrower = async () => {
@@ -123,6 +131,7 @@ function BookBorrowForm({ itemId, onBookBorrowed, isForRenew }: IProps) {
       try {
         checkoutResponse = await axios.post(`${WEB_URL}/api/item/borrow-checkout`, {
           itemId,
+          itemTitle,
           borrowerUuid,
           checkoutPasscode,
           isForRenew,
