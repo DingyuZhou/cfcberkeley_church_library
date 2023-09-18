@@ -24,6 +24,7 @@ export default async function Home() {
         (itemCategorieInfo.itemCategorySections && itemCategorieInfo?.itemCategoryMap) ? (
           <div style={{ padding: '30px 20px' }}>
             <ItemSearch
+              hasAdminPrivilege={hasAdminPrivilege}
               itemCategorySections={itemCategorieInfo.itemCategorySections}
               itemCategoryMap={itemCategorieInfo.itemCategoryMap}
             />
@@ -32,7 +33,7 @@ export default async function Home() {
       }
 
       <div style={{ padding: '30px 0' }}>
-        <Link href="/item/donate">Donate Books</Link>
+        <Link href="/item/donate">Donate Book</Link>
       </div>
 
       {

@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     if (phoneNumber) {
       const textMessage = [
         `The book, ${itemTitle}, has been successfully ${ isForRenew ? 'renewed' : 'borrowed' }.`,
-        `The due date for the book return is${ isForRenew ? ' extended to' : '' }: ${dueAt}.  Enjoy!`,
+        `The due date for the book return is${ isForRenew ? ' extended to' : '' }: ${dueAt}. Enjoy!`,
       ].join(' ')
 
       await sendTextMessage(phoneNumber, textMessage)

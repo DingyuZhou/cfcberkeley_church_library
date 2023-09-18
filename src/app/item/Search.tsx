@@ -12,6 +12,7 @@ import ItemDetailsUi from './[itemIdOrUuid]/details/ItemDetailsUi'
 import formatItemDataFromDb from './formatItemDataFromDb'
 
 interface IProps {
+  hasAdminPrivilege: boolean,
   itemCategorySections: IItemCategorySection[],
   itemCategoryMap: IItemCategoryMap
 }
@@ -22,7 +23,7 @@ const ItemDetailsContainer = styled.div`
 
 const ALL_CATEGORY_SECTIONS = 'All'
 
-function ItemSearch({ itemCategorySections, itemCategoryMap }: IProps) {
+function ItemSearch({ hasAdminPrivilege, itemCategorySections, itemCategoryMap }: IProps) {
   const [searchText, setSearchText] = useState("")
   const [searchCategorySection, setSearchCategorySection] = useState(ALL_CATEGORY_SECTIONS)
   const [results, setResults] = useState<IItem[]>([])
@@ -136,7 +137,7 @@ function ItemSearch({ itemCategorySections, itemCategoryMap }: IProps) {
               <Grid item xs={12} key={result.itemId} style={{ maxWidth: '1000px', padding: '10px 0 10px 0' }}>
                 <ItemDetailsContainer>
                   <ItemDetailsUi
-                    hasAdminPrivilege={false}
+                    hasAdminPrivilege={hasAdminPrivilege}
                     clickToRedirectUrl={`/item/${result.itemId}/details`}
                     item={result}
                   />
