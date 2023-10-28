@@ -47,3 +47,9 @@ export interface IItemCategorySection {
 export interface IItemCategoryMap {
   [categoryId: string]: IItemCategory
 }
+
+export interface IItemCategoryInfo {
+  itemCategories: IItemCategory[]
+  itemCategorySections: IItemCategorySection[]
+  itemCategoryMap: IItemCategoryMap
+}
