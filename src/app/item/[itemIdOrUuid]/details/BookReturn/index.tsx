@@ -7,6 +7,7 @@ import axios from 'axios'
 import { WEB_URL, UNEXPECTED_INTERNAL_ERROR } from 'src/constants'
 import { IItem } from 'src/types'
 import AlertDialog from 'src/components/AlertDialog'
+import useTisl from 'src/hooks/useTisl'
 
 interface IProps {
   children: any
@@ -18,6 +19,7 @@ export default function BookReturn({ item, children }: IProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
+  const { getUiTisl } = useTisl()
 
   const handleClickOpen = () => {
     setIsLoading(false)
@@ -44,11 +46,11 @@ export default function BookReturn({ item, children }: IProps) {
       if (response?.data?.isSuccess) {
         setIsSuccess(true)
       } else {
-        setErrorMessage(response?.data?.errorMessage || UNEXPECTED_INTERNAL_ERROR)
+        setErrorMessage(getUiTisl(response?.data?.errorMessage || UNEXPECTED_INTERNAL_ERROR))
         setIsLoading(false)
       }
     } catch (error: any) {
-      setErrorMessage(UNEXPECTED_INTERNAL_ERROR)
+      setErrorMessage(getUiTisl(UNEXPECTED_INTERNAL_ERROR))
       setIsLoading(true)
     }
   }

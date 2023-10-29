@@ -16,7 +16,7 @@
 
 - ### Update to AWS
 
-  Update the Lambda function, `cfc`, with `zip` files built above:
+  Update the Lambda function, `cfcberkeley_church_library_reminders`, with `zip` files built above:
 
 - ### Re-trigger a AWS run
 

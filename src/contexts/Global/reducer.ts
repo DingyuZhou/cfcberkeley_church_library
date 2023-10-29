@@ -12,9 +12,15 @@ export interface IAction {
 export const reducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
     case 'CHANGE_LANGUAGE':
+      const newSelectedLanguage = action.value
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('SELECTED_LANGUAGE', newSelectedLanguage)
+      }
+
       return {
         ...state,
-        language: action.value,
+        language: newSelectedLanguage,
       }
 
     default:

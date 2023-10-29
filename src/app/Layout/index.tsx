@@ -1,7 +1,7 @@
-import Link from 'next/link'
-
 import { GlobalContextProvider } from 'src/contexts/Global'
-import LanguageSwitcher from 'src/components/LanguageSwitcher'
+
+import Header from './Header'
+import LocalStorageLoader from './LocalStorageLoader'
 
 export const metadata = {
   title: 'CFCBerkeley Library',
@@ -18,11 +18,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <GlobalContextProvider>
-          <div style={{ zIndex: 2000, padding: '1px', margin: '1px' }}><h3><Link href="/">CFCBerkeley Library</Link></h3></div>
-          <div><LanguageSwitcher /></div>
-          <div style={{ zIndex: 1000 }}>
+          <LocalStorageLoader>
+            <Header />
             {children}
-          </div>
+          </LocalStorageLoader>
         </GlobalContextProvider>
       </body>
     </html>

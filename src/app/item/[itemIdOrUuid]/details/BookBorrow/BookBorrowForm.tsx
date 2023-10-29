@@ -1,13 +1,14 @@
+'use client'
+
 import React, { useState, useEffect } from 'react'
 import { Grid, TextField, Button } from '@mui/material'
 import axios from 'axios'
 
 import { WEB_URL, UNEXPECTED_INTERNAL_ERROR } from 'src/constants'
 import { formatPhoneNumberWhileTyping } from 'src/util/string'
+import useTisl from 'src/hooks/useTisl'
 
 import CountdownButton from './CountdownButton'
-
-let generatedPasscode = ''
 
 interface IProps {
   itemId?: string
@@ -27,6 +28,7 @@ function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProp
   const [borrowerOneTimePassword, setBorrowerOneTimePassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isGetPasscodeButtonEnabled, setIsGetPasscodeButtonEnabled] = useState(false)
+  const { getUiTisl, selectedLanguage } = useTisl()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -46,17 +48,17 @@ function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProp
     const trimmedLastName = (lastName || '').trim()
 
     if (!trimmedFirstName) {
-      errorText = 'The first name is required'
+      errorText = getUiTisl('First name is required')
     } else if (!trimmedLastName) {
-      errorText = 'The last name is required'
+      errorText = getUiTisl('Last name is required')
     } else if (digitsOnlyPhoneNumber.length !== 10 || digitsOnlyPhoneNumber[0] === '0') {
-      errorText = 'The phone number is invalid'
+      errorText = getUiTisl('Phone number is invalid')
     } else if (
       shouldValidateCheckoutPasscode
       && hasSentCheckoutPasscode
       && (!checkoutPasscode || checkoutPasscode.length !== 6)
     ) {
-      errorText = `The ${isForRenew ? 'renew' : 'checkout'} passcode is invalid`
+      errorText = isForRenew ? getUiTisl('Renew passcode is invalid') : getUiTisl('Checkout passcode is invalid')
     }
 
     if (errorText) {
@@ -91,10 +93,11 @@ function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProp
     try {
       registerResponse = await axios.post(`${WEB_URL}/api/book-borrower/register`, {
         ...validatedInput,
-        checkoutPasscode: generatedPasscode,
+        isForRenew,
+        preferredLanguage: selectedLanguage,
       })
     } catch (error: any) {
-      setErrorMessage(UNEXPECTED_INTERNAL_ERROR)
+      setErrorMessage(getUiTisl(UNEXPECTED_INTERNAL_ERROR))
     }
 
     const responseData = registerResponse?.data
@@ -103,7 +106,7 @@ function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProp
       setBorrowerUuid(responseData?.borrowerUuid || '')
       setBorrowerOneTimePassword(responseData?.oneTimePassword || '')
     } else {
-      setErrorMessage(responseData?.errorMessage || UNEXPECTED_INTERNAL_ERROR)
+      setErrorMessage(getUiTisl(responseData?.errorMessage || UNEXPECTED_INTERNAL_ERROR))
     }
 
     setIsLoading(false)
@@ -136,16 +139,17 @@ function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProp
           checkoutPasscode,
           isForRenew,
           oneTimePassword: borrowerOneTimePassword,
+          preferredLanguage: selectedLanguage,
         })
 
         if (checkoutResponse?.data?.isSuccess) {
           onBookBorrowed(checkoutResponse?.data?.dueAt)
         } else {
-          setErrorMessage(checkoutResponse?.data?.errorMessage || UNEXPECTED_INTERNAL_ERROR)
+          setErrorMessage(getUiTisl(checkoutResponse?.data?.errorMessage || UNEXPECTED_INTERNAL_ERROR))
           setIsLoading(false)
         }
       } catch (error: any) {
-        setErrorMessage(UNEXPECTED_INTERNAL_ERROR)
+        setErrorMessage(getUiTisl(UNEXPECTED_INTERNAL_ERROR))
         setIsLoading(false)
       }
     } else {
@@ -165,9 +169,8 @@ function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProp
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <TextField
-            required
             fullWidth
-            label="First Name"
+            label={`${getUiTisl('First Name')} *`}
             value={firstName}
             onChange={(e) => {
               setErrorMessage('')
@@ -177,9 +180,8 @@ function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProp
         </Grid>
         <Grid item xs={12}>
           <TextField
-            required
             fullWidth
-            label="Last Name"
+            label={`${getUiTisl('Last Name')} *`}
             value={lastName}
             onChange={(e) => {
               setErrorMessage('')
@@ -189,13 +191,23 @@ function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProp
         </Grid>
         <Grid item xs={12}>
           <TextField
-            required
             fullWidth
-            label="US Phone Number"
+            label={`${getUiTisl('US Phone Number')} *`}
             value={phoneNumber}
             onChange={handlePhoneNumberChange}
           />
         </Grid>
+        <Grid item xs={12}>
+          <div style={{
+            fontSize: '14px',
+            fontStyle: 'italic',
+            color: 'gray',
+            textAlign: 'left',
+          }}>
+            {getUiTisl('* marked fields are required')}
+          </div>
+        </Grid>
+
         {
           hasSentCheckoutPasscode ? (
             <Grid item xs={12}>
@@ -204,7 +216,7 @@ function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProp
                   <TextField
                     required
                     fullWidth
-                    label={ isForRenew ? 'Renew Passcode' : 'Checkout Passcode' }
+                    label={ isForRenew ? getUiTisl('Renew Passcode') : getUiTisl('Checkout Passcode') }
                     value={checkoutPasscode}
                     onChange={(e) => {
                       setErrorMessage('')
@@ -220,20 +232,23 @@ function BookBorrowForm({ itemId, itemTitle, onBookBorrowed, isForRenew }: IProp
           ) : null
         }
         <Grid item xs={12} style={{ paddingTop: '40px' }}>
-          {
-            hasSentCheckoutPasscode ? (
-              <div style={{ width: '100%', textAlign: 'center', padding: '0 0 30px 0', fontSize: '20px' }}>
-                The { isForRenew ? 'renew' : 'checkout' } passcode has just sent you via SMS. It may take a few minutes for it to arrive. Thanks for your patience!
-              </div>
-            ) : null
-          }
           <Button fullWidth variant="contained" type="submit" size="large" disabled={isLoading || !isGetPasscodeButtonEnabled}>
             {
               hasSentCheckoutPasscode
-                ? (isForRenew ? 'Renew' : 'Checkout')
-                : (isForRenew ? 'Get a renew passcode' : 'Get a checkout passcode')
+                ? (isForRenew ? getUiTisl('Renew') : getUiTisl('Checkout'))
+                : (isForRenew ? getUiTisl('Get renew passcode') : getUiTisl('Get checkout passcode'))
             }
           </Button>
+
+          {
+            hasSentCheckoutPasscode ? (
+              <div style={{ width: '100%', textAlign: 'center', padding: '25px 0 0 0', fontSize: '20px' }}>
+                {
+                  isForRenew ? getUiTisl('Renew passcode has sent') : getUiTisl('Checkout passcode has sent')
+                }
+              </div>
+            ) : null
+          }
         </Grid>
         {
           errorMessage ? (

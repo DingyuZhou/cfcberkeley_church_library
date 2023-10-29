@@ -16,7 +16,7 @@ export const ITEM_TYPE_ID = {
 
 export const DEFAULT_CATEGORY_ID = '1'
 
-export const UNEXPECTED_INTERNAL_ERROR =  'Unexpected internal error. Please try it again later'
+export const UNEXPECTED_INTERNAL_ERROR = 'unexpected internal error'
 
 export const BOOK_STATUS_AVAILABLE = 'AVAILABLE'
 export const BOOK_STATUS_BORROWED = 'BORROWED'

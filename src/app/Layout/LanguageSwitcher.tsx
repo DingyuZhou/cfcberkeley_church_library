@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useContext } from 'react'
+import React, { useContext } from 'react'
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from 'src/constants/language'
@@ -15,12 +15,13 @@ function LanguageSwitcher() {
   }
 
   return (
-    <FormControl>
-      <InputLabel id="language-switcher-label">Language</InputLabel>
+    <FormControl fullWidth>
+      <InputLabel id='language-switcher-label'>中文 / ENG</InputLabel>
       <Select
-        labelId="language-switcher-label"
-        id="language-switcher"
+        labelId='language-switcher-label'
+        id='language-switcher'
         value={state?.language || DEFAULT_LANGUAGE}
+        label='中文 / ENG'
         onChange={handleLanguageChange}
       >
         {SUPPORTED_LANGUAGES.map((language) => (

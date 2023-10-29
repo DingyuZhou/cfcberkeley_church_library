@@ -1,6 +1,5 @@
 import { cookies } from 'next/headers'
 import { validate as uuidValidate, version as uuidVersion } from 'uuid'
-import Link from 'next/link'
 
 import { getDb } from 'src/db/models'
 import isAdmin from 'src/util/member/isAdmin'
@@ -46,19 +45,14 @@ async function ItemPage({ params }: IProps) {
   }
 
   return (
-    <div>
-      <div>
-        <Link href="/member/sign-in">Sign In</Link>
-      </div>
-      <ItemDetailsUiWithAdminActions
-        uuid={decodedUuid}
-        itemCategories={itemCategories}
-        itemCategoryMap={itemCategoryMap}
-        hasAdminPrivilege={hasAdminPrivilege}
-        hasBorrowButton={true}
-        item={item}
-      />
-    </div>
+    <ItemDetailsUiWithAdminActions
+      uuid={decodedUuid}
+      itemCategories={itemCategories}
+      itemCategoryMap={itemCategoryMap}
+      hasAdminPrivilege={hasAdminPrivilege}
+      hasBorrowButton={true}
+      item={item}
+    />
   )
 }
 

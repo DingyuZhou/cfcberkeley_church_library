@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import { Grid } from '@mui/material'
 import { Button } from '@mui/material'
+import axios from 'axios'
 
-import { ITEM_TYPE_ID, DEFAULT_CATEGORY_ID, BOOK_STATUS_AVAILABLE } from 'src/constants'
+import { ITEM_TYPE_ID, DEFAULT_CATEGORY_ID, BOOK_STATUS_AVAILABLE, WEB_URL } from 'src/constants'
 import { IItem, IItemCategory, IItemCategoryMap } from 'src/types'
+import formatItemDataFromDb from '../../formatItemDataFromDb'
 
 import ItemEdit from '../../ItemEdit'
 import ItemDetailsUi from './ItemDetailsUi'
@@ -43,12 +45,40 @@ export default function ItemDetailsUiWithAdminActions({ uuid, itemCategories, it
     }
   }
 
+  const handleItemChange = async () => {
+    if (item?.itemId) {
+      let response: any = null
+      try {
+        response = await axios.post(`${WEB_URL}/api/item/fetch`, {
+          itemId: item?.itemId,
+        })
+      } catch (error: any) {
+        // do nothing
+      }
+
+      if (response) {
+        const updatedItem = formatItemDataFromDb(response.data?.itemResponse, itemCategoryMap)
+        if (updatedItem) {
+          setDisplayedItem(updatedItem)
+          return
+        }
+      }
+
+      window.location.reload()
+    }
+  }
+
   const hasBook = !!(displayedItem?.itemId) || false
 
   return (
     <Grid container rowSpacing={5} style={{ paddingTop: '50px' }}>
       <Grid item xs={12}>
-        <ItemDetailsUi item={displayedItem} hasAdminPrivilege={hasAdminPrivilege} hasBorrowButton={hasBorrowButton} />
+        <ItemDetailsUi
+          item={displayedItem}
+          hasAdminPrivilege={hasAdminPrivilege}
+          hasBorrowButton={hasBorrowButton}
+          handleItemChange={handleItemChange}
+        />
       </Grid>
 
       {

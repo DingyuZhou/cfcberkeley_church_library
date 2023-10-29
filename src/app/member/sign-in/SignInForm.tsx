@@ -6,6 +6,7 @@ import { Grid, TextField, Button } from '@mui/material'
 import { useRouter } from 'next/navigation'
 
 import { WEB_URL } from 'src/constants'
+import useTisl from 'src/hooks/useTisl'
 
 function SignInForm() {
   const [email, setEmail] = useState('')
@@ -13,6 +14,7 @@ function SignInForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const router = useRouter()
+  const { getUiTisl } = useTisl()
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value)
@@ -24,6 +26,13 @@ function SignInForm() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    if (!email || !password) {
+      setErrorMessage(
+        getUiTisl('The email or password may not be correct')
+      )
+      return
+    }
 
     setIsSubmitting(true)
 
@@ -41,7 +50,7 @@ function SignInForm() {
     } catch (error: any) {
       console.log(error)
       setErrorMessage(
-        error?.response?.data?.error?.message || 'The email or password may not be correct'
+        getUiTisl(error?.response?.data?.error?.message || 'The email or password may not be correct')
       )
       setIsSubmitting(false)
     }
@@ -53,20 +62,19 @@ function SignInForm() {
       direction="row"
       justifyContent="center"
       alignItems="center"
-      style={{ height: '100vh' }}
+      style={{ height: '700px' }}
     >
       <Grid item xs={12} sm={8} md={6} lg={4} style={{ maxWidth: '400px', paddingBottom: '20vh' }}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <h1 style={{ textAlign: 'center' }}>Sign In</h1>
+              <h1 style={{ textAlign: 'center' }}>{getUiTisl('Admin Login')}</h1>
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                required
                 type="email"
-                label="Email"
+                label={getUiTisl('Email')}
                 variant="outlined"
                 value={email}
                 onChange={handleEmailChange}
@@ -75,9 +83,8 @@ function SignInForm() {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                required
                 type="password"
-                label="Password"
+                label={getUiTisl('Password')}
                 variant="outlined"
                 value={password}
                 onChange={handlePasswordChange}
@@ -91,7 +98,7 @@ function SignInForm() {
                 fullWidth
                 disabled={isSubmitting}
               >
-                Sign In
+                {getUiTisl('Sign In')}
               </Button>
             </Grid>
             {

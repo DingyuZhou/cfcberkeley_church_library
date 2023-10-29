@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { Grid } from '@mui/material'
 
 import ItemSearch from 'src/app/item/Search'
 import { IItemCategoryInfo } from 'src/types'
@@ -12,17 +13,13 @@ interface IProps {
 }
 
 export default function Main({ hasAdminPrivilege, itemCategorieInfo }: IProps) {
-  const { getTisl } = useTisl()
+  const { getUiTisl } = useTisl()
 
   return (
     <div>
-      <h1>{getTisl('CFC Berkeley Library')}</h1>
-      <div>{getTisl('Welcome!')}</div>
-      <div><Link href="/member/sign-in">{getTisl('Sign In')}</Link></div>
-
       {
         (itemCategorieInfo.itemCategorySections && itemCategorieInfo?.itemCategoryMap) ? (
-          <div style={{ padding: '30px 20px' }}>
+          <div style={{ padding: '50px 20px 200px 20px' }}>
             <ItemSearch
               hasAdminPrivilege={hasAdminPrivilege}
               itemCategorySections={itemCategorieInfo.itemCategorySections}
@@ -31,10 +28,6 @@ export default function Main({ hasAdminPrivilege, itemCategorieInfo }: IProps) {
           </div>
         ) : null
       }
-
-      <div style={{ padding: '30px 0' }}>
-        <Link href="/item/donate">{getTisl('Donate Book')}</Link>
-      </div>
 
       {
         hasAdminPrivilege ? (

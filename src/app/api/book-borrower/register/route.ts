@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { getTextInSelectedLanguage } from 'src/constants/language'
 import { getDb } from 'src/db/models'
 import sendTextMessage from 'src/util/sms'
 
-function generateTextMessage(checkoutPasscode: string) {
-  return `Your 6-digit checkout passcode to borrow a book from CFC Berkeley Church library is: ${checkoutPasscode}`
+function generateTextMessage(preferredLanguage: string, passcode: string, isForRenew: boolean) {
+  if (isForRenew) {
+    return getTextInSelectedLanguage('sms - your renew passcode is', preferredLanguage, [['{{passcode}}', passcode]])
+  } else {
+    return getTextInSelectedLanguage('sms - your checkout passcode is', preferredLanguage, [['{{passcode}}', passcode]])
+  }
 }
 
 export async function POST(request: NextRequest) {
-  const { firstName, lastName, phoneNumber } = await request.json()
+  const { firstName, lastName, phoneNumber, preferredLanguage, isForRenew } = await request.json()
   let isSuccess = true
   let errorMessage = ''
 
@@ -30,7 +35,7 @@ export async function POST(request: NextRequest) {
 
   if (isSuccess) {
     try {
-      await sendTextMessage(phoneNumberWithUsCountryCode, generateTextMessage(checkoutPasscode))
+      await sendTextMessage(phoneNumberWithUsCountryCode, generateTextMessage(preferredLanguage, checkoutPasscode, isForRenew))
     } catch (error: any) {
       isSuccess = false
       errorMessage = error?.message || ''
@@ -44,7 +49,7 @@ export async function POST(request: NextRequest) {
     try {
       registerResponse = await db.query(
         `
-          SELECT * FROM register_book_borrower(:firstName, :lastName, :phoneNumber, :checkoutPasscode);
+          SELECT * FROM register_book_borrower(:firstName, :lastName, :phoneNumber, :checkoutPasscode, :preferredLanguage);
         `,
         {
           type: db.QueryTypes.SELECT,
@@ -52,6 +57,7 @@ export async function POST(request: NextRequest) {
             firstName,
             lastName,
             checkoutPasscode,
+            preferredLanguage,
             phoneNumber: phoneNumberWithUsCountryCode,
           },
         },

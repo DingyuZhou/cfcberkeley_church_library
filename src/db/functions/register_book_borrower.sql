@@ -1,7 +1,7 @@
-DROP FUNCTION IF EXISTS register_book_borrower(i_first_name TEXT, i_last_name TEXT, i_phone_number TEXT, i_checkout_passcode TEXT);
+DROP FUNCTION IF EXISTS register_book_borrower(i_first_name TEXT, i_last_name TEXT, i_phone_number TEXT, i_checkout_passcode TEXT, i_preferred_language TEXT);
 
 
-CREATE OR REPLACE FUNCTION register_book_borrower(i_first_name TEXT, i_last_name TEXT, i_phone_number TEXT, i_checkout_passcode TEXT)
+CREATE OR REPLACE FUNCTION register_book_borrower(i_first_name TEXT, i_last_name TEXT, i_phone_number TEXT, i_checkout_passcode TEXT, i_preferred_language TEXT)
   RETURNS TABLE(
     borrower_uuid TEXT,
     one_time_password TEXT
@@ -31,7 +31,8 @@ BEGIN
       passcode_expire_at,
       one_time_password_hash,
       remaining_retry_count,
-      is_phone_number_verified
+      is_phone_number_verified,
+      preferred_language
     ) VALUES (
       v_borrower_uuid,
       i_first_name,
@@ -41,7 +42,8 @@ BEGIN
       (NOW() + INTERVAL '30 MINUTES'),
       CRYPT(v_one_time_password, GEN_SALT('bf')),
       5,
-      FALSE
+      FALSE,
+      i_preferred_language
     );
   ELSE
     UPDATE book_borrower SET
@@ -50,7 +52,8 @@ BEGIN
       checkout_passcode_hash = CRYPT(i_checkout_passcode, GEN_SALT('bf')),
       passcode_expire_at = (NOW() + INTERVAL '30 MINUTES'),
       one_time_password_hash = CRYPT(v_one_time_password, GEN_SALT('bf')),
-      remaining_retry_count = 5
+      remaining_retry_count = 5,
+      preferred_language = i_preferred_language
     WHERE book_borrower.id = v_borrower_id
     RETURNING book_borrower.uuid INTO v_borrower_uuid;
   END IF;

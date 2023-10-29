@@ -6,9 +6,7 @@ import axios from 'axios'
 import styled from "@emotion/styled"
 
 import { WEB_URL, BOOK_STATUS_AVAILABLE, ITEM_TYPE_ID } from 'src/constants'
-import { TRADITIONAL } from 'src/constants/language'
 import { IItem, IItemCategorySection, IItemCategoryMap } from 'src/types'
-import { chineseSimplifiedToTraditionalConverter } from 'src/util/chineseConverter'
 import useTisl from 'src/hooks/useTisl'
 
 import ItemDetailsUi from './[itemIdOrUuid]/details/ItemDetailsUi'
@@ -32,9 +30,7 @@ function ItemSearch({ hasAdminPrivilege, itemCategorySections, itemCategoryMap }
   const [results, setResults] = useState<IItem[]>([])
   const [hasUnsubmittedNewSearch, setHasUnsubmittedHasNewSearch] = useState<boolean>(true)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
-  const { getTisl, selectedLanguage } = useTisl()
-
-  const isInTraditionalChinese = selectedLanguage === TRADITIONAL
+  const { getUiTisl, getDbTisl } = useTisl()
 
   const handleCategorySectionChange = (event: any) => {
     setSearchCategorySection(event.target.value as string)
@@ -104,7 +100,7 @@ function ItemSearch({ hasAdminPrivilege, itemCategorySections, itemCategoryMap }
             <Grid item xs={12} md={8}>
               <TextField
                 fullWidth
-                label={getTisl('Search')}
+                label={getUiTisl('Search')}
                 value={searchText}
                 onChange={(event) => setSearchText(event.target.value)}
               />
@@ -115,12 +111,12 @@ function ItemSearch({ hasAdminPrivilege, itemCategorySections, itemCategoryMap }
                 value={searchCategorySection}
                 onChange={handleCategorySectionChange}
               >
-                <MenuItem value={ALL_CATEGORY_SECTIONS}>{getTisl('All Categories')}</MenuItem>
+                <MenuItem value={ALL_CATEGORY_SECTIONS}>{getUiTisl('All Categories')}</MenuItem>
                 {
                   itemCategorySections.map((section) => {
                     return (
                       <MenuItem key={section.categorySection} value={section.categorySection}>
-                        {getTisl('Book')} - {isInTraditionalChinese ? chineseSimplifiedToTraditionalConverter(section.categorySectionDisplayName) : section.categorySectionDisplayName}
+                        {getUiTisl('Book')} - {getDbTisl(section.categorySectionDisplayName)}
                       </MenuItem>
                     )
                   })
@@ -129,11 +125,19 @@ function ItemSearch({ hasAdminPrivilege, itemCategorySections, itemCategoryMap }
             </Grid>
             <Grid item xs={4} md={2}>
               <Button fullWidth type="submit" variant="contained" color="primary" size="large" sx={{ height: '55px' }} onClick={handleSearch}>
-                {getTisl('Search')}
+                {getUiTisl('Search')}
               </Button>
             </Grid>
           </Grid>
         </form>
+
+        {
+          isSubmitting ? (
+            <div style={{ color: 'gray', fontStyle: 'italic', fontSize: '15px', padding: '20px 0 0 0' }}>
+              {getUiTisl('Searching')}
+            </div>
+          ) : null
+        }
       </Grid>
 
       {
@@ -154,10 +158,10 @@ function ItemSearch({ hasAdminPrivilege, itemCategorySections, itemCategoryMap }
             <Grid item xs={12} style={{ maxWidth: '1000px', fontSize: '20px', padding: '40px 0 20px 0' }}>
               <div>
                 <div>
-                  Unfortunately, we could not find any matching results for your search.
+                  {getUiTisl('no matching result')}
                 </div>
                 <div style={{ padding: '15px 0 0 0' }}>
-                  If you have any specific titles or keywords in mind, please try refining your search or feel free to ask for assistance. We are here to help!
+                  {getUiTisl('try to search other keywords')}
                 </div>
               </div>
             </Grid>

@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import sendTextMessage from 'src/util/sms'
 import { getDateDisplayString } from 'src/util/datetime'
 import { getDb } from 'src/db/models'
+import { getTextInSelectedLanguage } from 'src/constants/language'
 
 export async function POST(request: NextRequest) {
-  const { borrowerUuid, oneTimePassword, checkoutPasscode, itemId, itemTitle, isForRenew } = await request.json()
+  const { borrowerUuid, oneTimePassword, checkoutPasscode, itemId, itemTitle, isForRenew, preferredLanguage } = await request.json()
 
   let sql = isForRenew
     ? 'SELECT * FROM renew_book(:borrowerUuid, :oneTimePassword, :checkoutPasscode, :itemId);'
@@ -32,10 +33,15 @@ export async function POST(request: NextRequest) {
   if (isSuccess) {
     const phoneNumber = responseData?.['phone_number']
     if (phoneNumber) {
-      const textMessage = [
-        `The book, ${itemTitle}, has been successfully ${ isForRenew ? 'renewed' : 'borrowed' }.`,
-        `The due date for the book return is${ isForRenew ? ' extended to' : '' }: ${dueAt}. Enjoy!`,
-      ].join(' ')
+      const textMessage = isForRenew ? getTextInSelectedLanguage(
+        'sms - renewed notice',
+        preferredLanguage,
+        [['{{itemTitle}}', itemTitle], ['{{dueAt}}', dueAt]]
+      ) : getTextInSelectedLanguage(
+        'sms - borrowed notice',
+        preferredLanguage,
+        [['{{itemTitle}}', itemTitle], ['{{dueAt}}', dueAt]]
+      )
 
       await sendTextMessage(phoneNumber, textMessage)
     }

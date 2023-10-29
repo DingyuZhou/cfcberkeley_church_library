@@ -9,6 +9,7 @@ import Link from 'next/link'
 
 import { WEB_URL, UNEXPECTED_INTERNAL_ERROR } from 'src/constants'
 import { formatPhoneNumberWhileTyping } from 'src/util/string'
+import useTisl from 'src/hooks/useTisl'
 
 interface IDonationFormState {
   firstName: string
@@ -31,6 +32,8 @@ const DonationForm: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isDataSubmitted, setIsDataSubmitted] = useState(false)
+
+  const { getUiTisl } = useTisl()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -67,13 +70,13 @@ const DonationForm: React.FC = () => {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
     if (!trimmedFirstName) {
-      errorText = 'The first name is required'
+      errorText = getUiTisl('First name is required')
     } else if (!trimmedLastName) {
-      errorText = 'The last name is required'
+      errorText = getUiTisl('Last name is required')
     } else if (digitsOnlyPhoneNumber.length !== 10 || digitsOnlyPhoneNumber[0] === '0') {
-      errorText = 'The phone number is invalid'
+      errorText = getUiTisl('Phone number is invalid')
     } else if (!emailPattern.test(trimmedEmail)) {
-      errorText = 'The email address is invalid'
+      errorText = getUiTisl('Email address is invalid')
     }
 
     if (errorText) {
@@ -109,7 +112,7 @@ const DonationForm: React.FC = () => {
         ...validatedInput,
       })
     } catch (error: any) {
-      setErrorMessage(UNEXPECTED_INTERNAL_ERROR)
+      setErrorMessage(getUiTisl(UNEXPECTED_INTERNAL_ERROR))
     }
 
     const responseData = response?.data
@@ -119,7 +122,7 @@ const DonationForm: React.FC = () => {
       setDonationData(initialDonationFormState)
       setPhoneNumber('')
     } else {
-      setErrorMessage(responseData?.errorMessage || UNEXPECTED_INTERNAL_ERROR)
+      setErrorMessage(getUiTisl(responseData?.errorMessage || UNEXPECTED_INTERNAL_ERROR))
     }
 
     setIsLoading(false)
@@ -150,7 +153,7 @@ const DonationForm: React.FC = () => {
       maxWidth: '600px',
     }}>
       <div style={{ padding: '0 30px' }}>
-        Thanks for your donation! Please fill out the form below. Our team will contact you shortly.
+        {getUiTisl('Thanks for donation')}
       </div>
 
       <div style={{ padding: '40px 30px'}}>
@@ -159,42 +162,38 @@ const DonationForm: React.FC = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="First Name"
+                label={`${getUiTisl('First Name')} *`}
                 name="firstName"
                 value={donationData.firstName}
                 onChange={handleInputChange}
-                required
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Last Name"
+                label={`${getUiTisl('Last Name')} *`}
                 name="lastName"
                 value={donationData.lastName}
                 onChange={handleInputChange}
-                required
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Phone Number"
+                label={`${getUiTisl('US Phone Number')} *`}
                 name="phoneNumber"
                 value={phoneNumber}
                 onChange={handlePhoneNumberChange}
-                required
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Email"
+                label={`${getUiTisl('Email')} *`}
                 name="email"
                 type="email"
                 value={donationData.email}
                 onChange={handleInputChange}
-                required
               />
             </Grid>
             <Grid item xs={12}>
@@ -202,17 +201,27 @@ const DonationForm: React.FC = () => {
                 fullWidth
                 multiline
                 minRows={6}
-                placeholder="The books you wish to donate, or any other information you would like us to know"
-                label="Notes for your donation"
+                placeholder={getUiTisl('Books wish to donate')}
+                label={getUiTisl('Notes for donation')}
                 name="notes"
                 value={donationData.notes}
                 onChange={handleInputChange}
               />
             </Grid>
             <Grid item xs={12}>
+              <div style={{
+                fontSize: '14px',
+                fontStyle: 'italic',
+                color: 'gray',
+                textAlign: 'left',
+              }}>
+                {getUiTisl('* marked fields are required')}
+              </div>
+            </Grid>
+            <Grid item xs={12}>
               <div style={{ padding: '20px 0' }}>
                 <Button size="large" fullWidth type="submit" variant="contained" color="primary" disabled={isLoading || !isSubmitButtonEnabled}>
-                  {isLoading ? 'Submitting' : 'Submit'}
+                  {isLoading ? getUiTisl('Submitting') : getUiTisl('Submit')}
                 </Button>
               </div>
             </Grid>
@@ -227,7 +236,7 @@ const DonationForm: React.FC = () => {
       </div>
 
       <div style={{ padding: '40px 30px' }}>
-        <Link href="/">Back to the library home page</Link>
+        <Link href="/">{getUiTisl('Back to the library home page')}</Link>
       </div>
     </div>
   )
