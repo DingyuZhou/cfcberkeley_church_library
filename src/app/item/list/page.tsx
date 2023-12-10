@@ -7,6 +7,17 @@ import isAdmin from 'src/util/member/isAdmin'
 import formatItemDataFromDb from '../formatItemDataFromDb'
 import getItemCategories from '../getItemCategories'
 import ItemList from '../ItemList'
+import BookListCsvDownload from './BookListCsvDownload'
+
+const escapeForCsv = (str?: string) => {
+  if (!str) {
+    return ''
+  }
+  // Replace double quotes with two double quotes
+  const escapedStr = str.replace(/"/g, '""');
+  // Wrap the string in double quotes if it contains a comma
+  return str.includes(',') ? `"${escapedStr}"` : escapedStr;
+}
 
 async function ItemListPage() {
   const appCookies = cookies()
@@ -62,12 +73,55 @@ async function ItemListPage() {
       padding: '5px 10px',
     }
 
+    const itemListCsvData: {
+      [key: string]: string
+    }[] = allItems.map((item) => {
+      return {
+        bookId: escapeForCsv(item.itemId),
+        title: escapeForCsv(item.title),
+        author: escapeForCsv(item.author),
+        translator: escapeForCsv(item.translator),
+        publisher: escapeForCsv(item.publisher),
+        libraryNumber: escapeForCsv(item.libraryNumber),
+        category: escapeForCsv(item.categorySection),
+        subCategory: escapeForCsv(item.category),
+        status: escapeForCsv(item.status),
+        note: escapeForCsv(item.note),
+      }
+    }).sort((bookA, bookB) => {
+      // Convert bookId to numbers for numeric comparison
+      const bookIdA = parseInt(bookA.bookId);
+      const bookIdB = parseInt(bookB.bookId);
+
+      // Compare bookId values
+      if (bookIdA < bookIdB) {
+        return -1;
+      } else if (bookIdA > bookIdB) {
+        return 1;
+      } else {
+        return 0;
+      }
+    })
+
+    const itemListCsvHeader = [
+      { id: 'bookId', displayName: 'Book ID' },
+      { id: 'title', displayName: 'Title' },
+      { id: 'author', displayName: 'Author' },
+      { id: 'translator', displayName: 'Translator' },
+      { id: 'publisher', displayName: 'Publisher' },
+      { id: 'libraryNumber', displayName: 'Library Number' },
+      { id: 'category', displayName: 'Category' },
+      { id: 'subCategory', displayName: 'Subcategory' },
+      { id: 'status', displayName: 'Book Status' },
+      { id: 'note', displayName: 'Note' },
+    ]
+
     return (
       <div style={{ padding: '5px 20px 60px 20px' }}>
         <h1 style={{ paddingBottom: '20px' }}>All Books</h1>
 
         <table style={{
-          margin: '0 0 40px 0',
+          margin: '0 0 20px 0',
           tableLayout: 'fixed',
           width: '100%',
           maxWidth: '400px',
@@ -95,6 +149,10 @@ async function ItemListPage() {
             }
           </tbody>
         </table>
+
+        <div style={{ padding: '0 0 20px 0' }}>
+          <BookListCsvDownload bookList={itemListCsvData} header={itemListCsvHeader} />
+        </div>
 
         <ItemList
           allItems={allItems}
