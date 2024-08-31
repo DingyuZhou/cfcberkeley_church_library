@@ -51,7 +51,7 @@ BEGIN
     IF v_borrower_id = v_renewer_id THEN
       BEGIN
         UPDATE item SET
-          due_at = item.borrowed_at + INTERVAL '45 DAYS',
+          due_at = TIMESTAMPTZ_LARGER(item.due_at, NOW()) + INTERVAL '30 DAYS',
           has_renewed = TRUE
         WHERE item.id = i_item_id
           AND item.status = 'BORROWED'
