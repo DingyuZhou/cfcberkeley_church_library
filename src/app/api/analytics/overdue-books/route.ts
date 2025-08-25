@@ -4,17 +4,17 @@ import isAdmin from 'src/util/member/isAdmin'
 
 export async function GET(request: NextRequest) {
   const hasAdminPrivilege = await isAdmin(request.cookies)
-  
+
   if (!hasAdminPrivilege) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { db } = getDb()
-  
+
   const result = await db.query(
     `
       SELECT
-        bbh.borrowed_at::DATE AS borrow_date,
+        (bbh.borrowed_at AT TIME ZONE 'America/Los_Angeles')::DATE AS borrow_date,
         (bb.first_name || ' ' || bb.last_name) AS borrower_name,
         bb.phone_number AS borrower_phone_number,
         i.title AS not_returned_book,

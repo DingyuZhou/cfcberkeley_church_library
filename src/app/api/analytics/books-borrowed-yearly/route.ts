@@ -4,13 +4,13 @@ import isAdmin from 'src/util/member/isAdmin'
 
 export async function GET(request: NextRequest) {
   const hasAdminPrivilege = await isAdmin(request.cookies)
-  
+
   if (!hasAdminPrivilege) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { db } = getDb()
-  
+
   const result = await db.query(
     `
       SELECT
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       FROM book_borrow_history AS bbh
       WHERE bbh.borrowed_at > (NOW() - INTERVAL '10 Years')
       GROUP BY year
-      ORDER BY year
+      ORDER BY year DESC;
     `,
     {
       type: db.QueryTypes.SELECT,

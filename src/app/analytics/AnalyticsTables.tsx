@@ -1,19 +1,52 @@
 'use client'
 
-import { Box, Typography, Paper } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { Box, Typography, Paper, Button } from '@mui/material'
+import { DataGrid, GridColDef, GridToolbarContainer } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
 import { getDateDisplayString } from 'src/util/datetime'
 import { getPhoneNumberDisplayString } from 'src/util/item'
+import CsvDownloader from 'react-csv-downloader'
 
 interface AnalyticsTableProps {
   title: string
   data: any[]
   columns: GridColDef[]
   loading: boolean
+  csvFilename: string
 }
 
-function AnalyticsTable({ title, data, columns, loading }: AnalyticsTableProps) {
+function CustomToolbar({ data, columns, filename }: { data: any[], columns: GridColDef[], filename: string }) {
+  // Filter out hidden columns and prepare CSV data with proper headers
+  const csvColumns = columns.filter(col => col.field && col.field !== 'borrowDateRaw' && col.field !== 'id')
+  
+  const csvData = data.map(row => {
+    const csvRow: any = {}
+    csvColumns.forEach(col => {
+      const headerName = col.headerName || col.field
+      csvRow[headerName] = row[col.field!]
+    })
+    return csvRow
+  })
+
+  return (
+    <GridToolbarContainer>
+      <CsvDownloader
+        filename={filename}
+        datas={csvData}
+        columns={csvColumns.map(col => ({ 
+          id: col.headerName || col.field!, 
+          displayName: col.headerName || col.field! 
+        }))}
+        separator=","
+        wrapColumnChar='"'
+      >
+        <Button size="small">Export to CSV</Button>
+      </CsvDownloader>
+    </GridToolbarContainer>
+  )
+}
+
+function AnalyticsTable({ title, data, columns, loading, csvFilename }: AnalyticsTableProps) {
   return (
     <Paper sx={{ p: 2, mb: 3 }}>
       <Typography variant="h6" sx={{ mb: 2 }}>{title}</Typography>
@@ -32,6 +65,9 @@ function AnalyticsTable({ title, data, columns, loading }: AnalyticsTableProps) 
           }}
           pageSizeOptions={[15, 30, 50, 100]}
           disableRowSelectionOnClick
+          slots={{
+            toolbar: () => <CustomToolbar data={data} columns={columns} filename={csvFilename} />
+          }}
         />
       </Box>
     </Paper>
@@ -159,6 +195,7 @@ export default function AnalyticsTables() {
         data={yearlyBooksData}
         columns={yearlyBooksColumns}
         loading={loading}
+        csvFilename="books_borrowed_yearly.csv"
       />
       
       <AnalyticsTable
@@ -166,6 +203,7 @@ export default function AnalyticsTables() {
         data={yearlyUsersData}
         columns={yearlyUsersColumns}
         loading={loading}
+        csvFilename="users_registered_yearly.csv"
       />
       
       <AnalyticsTable
@@ -173,6 +211,7 @@ export default function AnalyticsTables() {
         data={categoryStatsData}
         columns={categoryStatsColumns}
         loading={loading}
+        csvFilename="book_categories_stats.csv"
       />
       
       <AnalyticsTable
@@ -180,6 +219,7 @@ export default function AnalyticsTables() {
         data={borrowHistoryData}
         columns={borrowHistoryColumns}
         loading={loading}
+        csvFilename="book_borrow_history.csv"
       />
       
       <AnalyticsTable
@@ -187,6 +227,7 @@ export default function AnalyticsTables() {
         data={overdueBooksData}
         columns={overdueBooksColumns}
         loading={loading}
+        csvFilename="overdue_books.csv"
       />
     </div>
   )
