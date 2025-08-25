@@ -42,7 +42,8 @@ export default function Main({ hasAdminPrivilege, itemCategorieInfo }: IProps) {
             <div><Link href="/item/borrowed">All Borrowed Books</Link></div>
             <br />
             <div><Link href="/book-borrower/list">All Book Borrowers</Link></div>
-            <br />
+            <br /><br /><br />
+            <div><Link href="/analytics">Library Analytics</Link></div>
           </div>
         ) : null
       }

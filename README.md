@@ -1,3 +1,7 @@
+### Introduction
+  - This is a library management website written by `NextJs`.
+
+
 ### Deploy on AWS Elastic Beanstalk
   - Go to the repo: `cfcberkeley`
     ```
